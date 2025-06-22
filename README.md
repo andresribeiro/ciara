@@ -1,15 +1,11 @@
-# ciara
+# Ciara - deploy from your terminal in 4 minutes
 
-To install dependencies:
+Ciara allows you to deploy any application in N servers in 4 minutes from your terminal, requiring no previous configuration on the Operational System.
 
-```bash
-bun install
-```
+## Features
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.17. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+- Integrated Firewall Management
+- Zero-Downtime Deployments
+- Servers Worry-Free Maintenance
+- Automatices OS updates
+- Zero-Config OS Ready
