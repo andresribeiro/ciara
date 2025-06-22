@@ -65,11 +65,43 @@ yargs(hideBin(process.argv))
 						return "Please enter a username.";
 					},
 				},
+				{
+					type: "number",
+					name: "appPort",
+					message: "Which port is your application running on?:",
+					default: 3000,
+					validate: (value: number) => {
+						if (value === 80 || value === 443) {
+							return "Ports 80 and 443 are reserved for the proxy. Please choose a different port.";
+						}
+						if (value > 0 && value < 65536) {
+							return true;
+						}
+						return "Please enter a valid port number (1-65535).";
+					},
+				},
+				{
+					type: "confirm",
+					name: "setupDomain",
+					message: "Would you like to setup a domain?",
+					default: false,
+				},
+				{
+					type: "input",
+					name: "domain",
+					message: "Enter your domain:",
+					when: (answers) => answers.setupDomain,
+					validate: (value: string) => {
+						if (value.length > 0) {
+							return true;
+						}
+						return "Please enter a valid domain name.";
+					},
+				},
 			];
 
 			try {
 				const answers = await inquirer.prompt(questions);
-
 				const config = {
 					servers: [
 						{
@@ -78,11 +110,16 @@ yargs(hideBin(process.argv))
 							user: answers.user,
 						},
 					],
+					firewall: {
+						inbound: [{ port: answers.appPort, allow: "*" }],
+					},
+					proxy: {
+						port: answers.appPort,
+						domains: answers.domain ? [answers.domain] : undefined,
+					},
 				};
-
 				const configPath = path.join(process.cwd(), "ciara.config.json");
-				fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-
+				fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
 				console.log(`Successfully created ${configPath}`);
 			} catch (error) {
 				console.error("An error occurred during initialization:", error);
