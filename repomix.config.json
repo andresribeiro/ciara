@@ -1,0 +1,38 @@
+{
+	"$schema": "https://repomix.com/schemas/latest/schema.json",
+	"input": {
+		"maxFileSize": 52428800
+	},
+	"output": {
+		"filePath": "ciara-repomix.txt",
+		"style": "markdown",
+		"parsableStyle": false,
+		"fileSummary": true,
+		"directoryStructure": true,
+		"files": true,
+		"removeComments": false,
+		"removeEmptyLines": false,
+		"compress": true,
+		"topFilesLength": 5,
+		"showLineNumbers": false,
+		"copyToClipboard": false,
+		"git": {
+			"sortByChanges": true,
+			"sortByChangesMaxCommits": 100,
+			"includeDiffs": false
+		},
+		"headerText": "Keep your answer as shortly as possible, don't over explain, don't add comments unless requested. Keep the same pattern for breaklines. If the change in the code is large, give me the complete file updated content. If it's small, just give me the changed part."
+	},
+	"include": [],
+	"ignore": {
+		"useGitignore": true,
+		"useDefaultPatterns": true,
+		"customPatterns": []
+	},
+	"security": {
+		"enableSecurityCheck": true
+	},
+	"tokenCount": {
+		"encoding": "o200k_base"
+	}
+}
