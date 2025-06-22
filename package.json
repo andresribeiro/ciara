@@ -3,10 +3,18 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "bin": {
+    "ciara": "./index.ts"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/yargs": "^17.0.33"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "inquirer": "^12.6.3",
+    "yargs": "^18.0.0"
   }
 }
