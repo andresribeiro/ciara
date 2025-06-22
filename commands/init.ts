@@ -1,9 +1,9 @@
-import fs from "node:fs";
 import path from "node:path";
 import inquirer from "inquirer";
 
 export async function initCommand() {
-	if (fs.existsSync("ciara.config.json")) {
+	const configAlreadyExists = await Bun.file("ciara.config.json").exists();
+	if (configAlreadyExists) {
 		console.log("ciara.config.json already exists. Skipping initialization.");
 		return;
 	}
@@ -107,7 +107,7 @@ export async function initCommand() {
 			},
 		};
 		const configPath = path.join(process.cwd(), "ciara.config.json");
-		fs.writeFileSync(configPath, JSON.stringify(config, null, 2), "utf-8");
+		await Bun.write(configPath, JSON.stringify(config, null, 2));
 		console.log(`Successfully created ${configPath}`);
 	} catch (error) {
 		console.error("An error occurred during initialization:", error);
