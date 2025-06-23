@@ -4,6 +4,7 @@ import { connectToSSH } from "./deploy-helpers/connectToSSH";
 import { copyCaddyfileToServer } from "./deploy-helpers/copyCaddyfileToServer";
 import { disableSSHPasswordLogins } from "./deploy-helpers/disableSSHPasswordLogins";
 import { ensureDockerIsInstalled } from "./deploy-helpers/ensureDockerIsInstalled";
+import { ensureFail2banIsConfigured } from "./deploy-helpers/ensureFail2banIsConfigured";
 import { getCaddyfilePath } from "./deploy-helpers/getCaddyfilePath";
 import { pruneImages } from "./deploy-helpers/pruneImages";
 import { pullCaddyDockerImages } from "./deploy-helpers/pullCaddyDockerImage";
@@ -22,10 +23,11 @@ export async function deployCommand() {
 	const servers = config.servers;
 	let allOk = true;
 	for (const server of servers) {
+		const ssh = new NodeSSH();
 		try {
-			const ssh = new NodeSSH();
 			await connectToSSH(ssh, server, config.ssh.privateKeyPath);
 			await ensureDockerIsInstalled(ssh);
+			await ensureFail2banIsConfigured(ssh);
 			// await disableSSHPasswordLogins(ssh);
 			// const localCaddyFilePath = await getCaddyfilePath(config.proxy.caddyfile);
 			// const { remoteCaddyfilePath, remoteCaddyServicePath } =
@@ -40,10 +42,11 @@ export async function deployCommand() {
 
 			logger.info(`Deployed on ${server.ip}.`);
 			logger.info(`Disconnecting from ${server.ip}.`);
-			ssh.dispose();
 		} catch (error) {
 			logger.error(`Could not deploy to ${server.ip}. Aborting. ${error}`);
 			allOk = false;
+		} finally {
+			ssh.dispose();
 		}
 		if (allOk) {
 			logger.info("Successfully deployed to all servers.");
