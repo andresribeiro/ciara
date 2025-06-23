@@ -6,3 +6,7 @@ export const logger = pino({
 		target: "pino-pretty",
 	},
 });
+
+export function logCommand(command: string) {
+	logger.info(`Running "${command}"`);
+}

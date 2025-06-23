@@ -19,8 +19,7 @@ export async function connectToSSH(
 		});
 		logger.info(`Connected to ${server.ip}.`);
 	} catch (error) {
-		const message = `Could not connect to ${server.ip}. Error: ${error}`;
-		logger.error(message);
+		const message = `Could not connect to ${server.ip}. ${error}`;
 		throw new Error(message);
 	}
 }

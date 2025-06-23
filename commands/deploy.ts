@@ -25,8 +25,8 @@ export async function deployCommand() {
 		try {
 			const ssh = new NodeSSH();
 			await connectToSSH(ssh, server, config.ssh.privateKeyPath);
+			await ensureDockerIsInstalled(ssh);
 			// await disableSSHPasswordLogins(ssh);
-			// await ensureDockerIsInstalled(ssh);
 			// const localCaddyFilePath = await getCaddyfilePath(config.proxy.caddyfile);
 			// const { remoteCaddyfilePath, remoteCaddyServicePath } =
 			// 	await setupPersistentFolder(ssh);
