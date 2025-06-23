@@ -5,7 +5,7 @@
 	},
 	"output": {
 		"filePath": "ciara-repomix.txt",
-		"style": "markdown",
+		"style": "xml",
 		"parsableStyle": false,
 		"fileSummary": true,
 		"directoryStructure": true,
@@ -20,8 +20,7 @@
 			"sortByChanges": true,
 			"sortByChangesMaxCommits": 100,
 			"includeDiffs": false
-		},
-		"headerText": "Keep your answer as shortly as possible, don't over explain, don't add comments unless requested. Keep the same pattern for breaklines. If the change in the code is large, give me the complete file updated content. If it's small, just give me the changed part."
+		}
 	},
 	"include": [],
 	"ignore": {
