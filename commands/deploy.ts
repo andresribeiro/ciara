@@ -1,6 +1,7 @@
 import { NodeSSH } from "node-ssh";
 import { connectToSSH } from "./deploy-helpers/connectToSSH";
 import { copyCaddyfileToServer } from "./deploy-helpers/copyCaddyfileToServer";
+import { disableSSHPasswordLogins } from "./deploy-helpers/disableSSHPasswordLogins";
 import { ensureDockerIsInstalled } from "./deploy-helpers/ensureDockerIsInstalled";
 import { getCaddyfilePath } from "./deploy-helpers/getCaddyfilePath";
 import { pruneImages } from "./deploy-helpers/pruneImages";
@@ -19,6 +20,7 @@ export async function deployCommand() {
 		try {
 			const ssh = new NodeSSH();
 			await connectToSSH(ssh, server);
+			await disableSSHPasswordLogins(ssh);
 			await ensureDockerIsInstalled(ssh);
 			const localCaddyFilePath = await getCaddyfilePath(config.proxy.caddyfile);
 			const { remoteCaddyfilePath, remoteCaddyServicePath } =
