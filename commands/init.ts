@@ -1,10 +1,12 @@
+import os from "node:os";
 import path from "node:path";
 import inquirer from "inquirer";
+import { logger } from "../utils/logger";
 
 export async function initCommand() {
 	const configAlreadyExists = await Bun.file("ciara.config.json").exists();
 	if (configAlreadyExists) {
-		console.log("ciara.config.json already exists. Skipping initialization.");
+		logger.info("ciara.config.json already exists. Skipping initialization.");
 		return;
 	}
 	const questions = [
@@ -90,6 +92,11 @@ export async function initCommand() {
 
 	try {
 		const answers = await inquirer.prompt(questions);
+		function getSshPrivateKeyPath() {
+			const homeDir = os.homedir();
+			const sshDir = path.join(homeDir, ".ssh");
+			return path.join(sshDir, "id_rsa");
+		}
 		const config = {
 			servers: [
 				{
@@ -98,6 +105,9 @@ export async function initCommand() {
 					user: answers.user,
 				},
 			],
+			ssh: {
+				privateKeyPath: getSshPrivateKeyPath(),
+			},
 			proxy: {
 				port: answers.appPort,
 				domains: answers.domain ? [answers.domain] : undefined,
@@ -111,8 +121,8 @@ export async function initCommand() {
 		};
 		const configPath = path.join(process.cwd(), "ciara.config.json");
 		await Bun.write(configPath, JSON.stringify(config, null, 2));
-		console.log(`Successfully created ${configPath}`);
+		logger.info(`Successfully created ${configPath}`);
 	} catch (error) {
-		console.error("An error occurred during initialization:", error);
+		logger.error("An error occurred during initialization:", error);
 	}
 }

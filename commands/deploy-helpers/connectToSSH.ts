@@ -1,24 +1,26 @@
 import type { NodeSSH } from "node-ssh";
+import { logger } from "../../utils/logger";
 import type { ServersType } from "../validate";
 
 export async function connectToSSH(
 	ssh: NodeSSH,
 	server: typeof ServersType.infer,
+	privateSSHKeyPath: string,
 ) {
 	try {
-		console.log(
-			`Connecting to ${server.ip} via SSH on user ${server.user} on port ${server.port}`,
+		logger.info(
+			`Connecting to ${server.ip} via SSH on user ${server.user} on port ${server.port}.`,
 		);
 		await ssh.connect({
 			host: server.ip,
 			username: server.user,
 			port: server.port,
-			privateKeyPath: "~/.ssh/id_rsa.pub",
+			privateKeyPath: privateSSHKeyPath,
 		});
-		console.log(`Connected to ${server.ip}`);
-	} catch {
-		const message = `Could not connect to ${server.ip}`;
-		console.error(message);
+		logger.info(`Connected to ${server.ip}.`);
+	} catch (error) {
+		const message = `Could not connect to ${server.ip}. Error: ${error}`;
+		logger.error(message);
 		throw new Error(message);
 	}
 }

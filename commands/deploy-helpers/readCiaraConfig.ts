@@ -1,5 +1,6 @@
 import path from "node:path";
 import { type } from "arktype";
+import { logger } from "../../utils/logger";
 import { CiaraConfig } from "../validate";
 
 export async function readCiaraConfig() {
@@ -7,16 +8,16 @@ export async function readCiaraConfig() {
 	const file = Bun.file(configPath);
 	const exists = await file.exists();
 	if (!exists) {
-		console.error("ciara.config.json does not exists.");
-		throw new Error("ciara.config.json does not exists.");
+		logger.error("ciara.config.json does not exists.");
+		return null;
 	}
 	const text = await file.text();
 	const data = CiaraConfig(JSON.parse(text));
 	if (data instanceof type.errors) {
 		for (const validationError of data) {
-			console.error(validationError.message);
+			logger.error(validationError.message);
 		}
-		throw new Error("Invalid ciara.config.json.");
+		return null;
 	}
 	return data;
 }

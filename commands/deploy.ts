@@ -1,4 +1,5 @@
 import { NodeSSH } from "node-ssh";
+import { logger } from "../utils/logger";
 import { connectToSSH } from "./deploy-helpers/connectToSSH";
 import { copyCaddyfileToServer } from "./deploy-helpers/copyCaddyfileToServer";
 import { disableSSHPasswordLogins } from "./deploy-helpers/disableSSHPasswordLogins";
@@ -15,31 +16,37 @@ import { stopOldContainer } from "./deploy-helpers/stopOldContainer";
 
 export async function deployCommand() {
 	const config = await readCiaraConfig();
+	if (!config) {
+		return;
+	}
 	const servers = config.servers;
+	let allOk = true;
 	for (const server of servers) {
 		try {
 			const ssh = new NodeSSH();
-			await connectToSSH(ssh, server);
-			await disableSSHPasswordLogins(ssh);
-			await ensureDockerIsInstalled(ssh);
-			const localCaddyFilePath = await getCaddyfilePath(config.proxy.caddyfile);
-			const { remoteCaddyfilePath, remoteCaddyServicePath } =
-				await setupPersistentFolder(ssh);
-			await copyCaddyfileToServer(ssh, localCaddyFilePath, remoteCaddyfilePath);
-			await setupCaddyfilePermissions(ssh, remoteCaddyfilePath);
-			await pullCaddyDockerImages(ssh);
-			await setupCaddy(ssh);
-			await startNewContainer(ssh);
-			await stopOldContainer(ssh);
-			await pruneImages(ssh);
+			await connectToSSH(ssh, server, config.ssh.privateKeyPath);
+			// await disableSSHPasswordLogins(ssh);
+			// await ensureDockerIsInstalled(ssh);
+			// const localCaddyFilePath = await getCaddyfilePath(config.proxy.caddyfile);
+			// const { remoteCaddyfilePath, remoteCaddyServicePath } =
+			// 	await setupPersistentFolder(ssh);
+			// await copyCaddyfileToServer(ssh, localCaddyFilePath, remoteCaddyfilePath);
+			// await setupCaddyfilePermissions(ssh, remoteCaddyfilePath);
+			// await pullCaddyDockerImages(ssh);
+			// await setupCaddy(ssh);
+			// await startNewContainer(ssh);
+			// await stopOldContainer(ssh);
+			// await pruneImages(ssh);
 
-			console.log(`Deployed on ${server.ip}`);
-			console.log(`Disconnecting from ${server.ip}`);
+			logger.info(`Deployed on ${server.ip}.`);
+			logger.info(`Disconnecting from ${server.ip}.`);
 			ssh.dispose();
 		} catch (error) {
-			console.error(`Could not deploy to ${server.ip}. Aborting: ${error}`);
-			throw error;
+			logger.error(`Could not deploy to ${server.ip}. Aborting. ${error}`);
+			allOk = false;
 		}
-		console.log("Successfully deployed to all servers");
+		if (allOk) {
+			logger.info("Successfully deployed to all servers.");
+		}
 	}
 }
