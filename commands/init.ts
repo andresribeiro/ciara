@@ -98,12 +98,15 @@ export async function initCommand() {
 					user: answers.user,
 				},
 			],
-			firewall: {
-				inbound: [{ port: answers.appPort, allow: "*" }],
-			},
 			proxy: {
 				port: answers.appPort,
 				domains: answers.domain ? [answers.domain] : undefined,
+			},
+			firewall: {
+				inbound: [{ port: answers.appPort, allow: "*" }],
+			},
+			updates: {
+				reboots: "03:00",
 			},
 		};
 		const configPath = path.join(process.cwd(), "ciara.config.json");

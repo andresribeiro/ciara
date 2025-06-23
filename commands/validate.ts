@@ -1,7 +1,7 @@
 import path from "node:path";
 import { type } from "arktype";
 
-const ServersType = type({
+export const ServersType = type({
 	"+": "reject",
 	ip: "string",
 	port: type("string.integer.parse").to("0 < number.integer <= 65536"),
@@ -34,7 +34,7 @@ const ProxyType = type({
 	"caddyfile?": type("string"),
 });
 
-const CiaraConfig = type({
+export const CiaraConfig = type({
 	"+": "reject",
 	servers: ServersType.array().atLeastLength(1),
 	"env?": "string",
@@ -55,9 +55,8 @@ export async function validateCommand() {
 	const data = CiaraConfig(JSON.parse(text));
 	if (data instanceof type.errors) {
 		for (const validationError of data) {
-			console.log(validationError.message);
+			console.error(validationError.message);
 		}
-		console.error("Invalid configuration.");
 		return;
 	}
 	console.log("Successfully validated configuration");
