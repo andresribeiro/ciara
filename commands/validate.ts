@@ -22,11 +22,6 @@ const FirewallInboundType = type({
 	allow: type("'*'").or(type("string").array()),
 });
 
-const FirewallType = type({
-	"+": "reject",
-	inbound: FirewallInboundType.array(),
-});
-
 const ProxyType = type({
 	"+": "reject",
 	port: type("number.integer").to("0 < number.integer <= 65536"),
@@ -34,13 +29,24 @@ const ProxyType = type({
 	"caddyfile?": type("string"),
 });
 
+const FirewallType = type({
+	"+": "reject",
+	inbound: FirewallInboundType.array(),
+});
+
+const UpdatesType = type({
+	"+": "reject",
+	reboots: type("string"),
+});
+
 export const CiaraConfig = type({
 	"+": "reject",
 	servers: ServersType.array().atLeastLength(1),
 	"env?": "string",
 	"healthchecks?": HealthcheckType.array(),
-	firewall: FirewallType,
 	proxy: ProxyType,
+	firewall: FirewallType,
+	updates: UpdatesType,
 });
 
 export async function validateCommand() {
