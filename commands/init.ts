@@ -116,7 +116,10 @@ export async function initCommand() {
 				inbound: [{ port: answers.appPort, allow: "*" }],
 			},
 			updates: {
-				reboots: "03:00",
+				reboots: {
+					enabled: true,
+					time: "03:00",
+				},
 			},
 		};
 		const configPath = path.join(process.cwd(), "ciara.config.json");

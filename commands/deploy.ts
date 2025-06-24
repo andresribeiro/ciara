@@ -2,9 +2,10 @@ import { NodeSSH } from "node-ssh";
 import { logger } from "../utils/logger";
 import { connectToSSH } from "./deploy-helpers/connectToSSH";
 import { copyCaddyfileToServer } from "./deploy-helpers/copyCaddyfileToServer";
-import { disableSSHPasswordLogins } from "./deploy-helpers/disableSSHPasswordLogins";
 import { ensureDockerIsInstalled } from "./deploy-helpers/ensureDockerIsInstalled";
 import { ensureFail2banIsConfigured } from "./deploy-helpers/ensureFail2banIsConfigured";
+import { ensureSSHPasswordLoginsAreDisabled } from "./deploy-helpers/ensureSSHPasswordLoginsAreDisabled";
+import { ensureUnattendedUpgradesAreConfigured } from "./deploy-helpers/ensureUnattendedUpgradesAreConfigured";
 import { getCaddyfilePath } from "./deploy-helpers/getCaddyfilePath";
 import { pruneImages } from "./deploy-helpers/pruneImages";
 import { pullCaddyDockerImages } from "./deploy-helpers/pullCaddyDockerImage";
@@ -28,7 +29,12 @@ export async function deployCommand() {
 			await connectToSSH(ssh, server, config.ssh.privateKeyPath);
 			await ensureDockerIsInstalled(ssh);
 			await ensureFail2banIsConfigured(ssh);
-			await disableSSHPasswordLogins(ssh);
+			await ensureSSHPasswordLoginsAreDisabled(ssh);
+			await ensureUnattendedUpgradesAreConfigured(
+				ssh,
+				config.updates.reboots.enabled,
+				config.updates.reboots.time,
+			);
 			// const localCaddyFilePath = await getCaddyfilePath(config.proxy.caddyfile);
 			// const { remoteCaddyfilePath, remoteCaddyServicePath } =
 			// 	await setupPersistentFolder(ssh);

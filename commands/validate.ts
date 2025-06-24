@@ -40,9 +40,15 @@ const FirewallType = type({
 	inbound: FirewallInboundType.array(),
 });
 
+const RebootsType = type({
+	"+": "reject",
+	enabled: "boolean",
+	time: "string",
+});
+
 const UpdatesType = type({
 	"+": "reject",
-	reboots: type("string"),
+	reboots: RebootsType,
 });
 
 export const CiaraConfig = type({

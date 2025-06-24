@@ -1,7 +1,7 @@
 import type { NodeSSH } from "node-ssh";
 import { logCommand, logger } from "../../utils/logger";
 
-export async function disableSSHPasswordLogins(ssh: NodeSSH) {
+export async function ensureSSHPasswordLoginsAreDisabled(ssh: NodeSSH) {
 	logger.info("Checking SSH password authentication status.");
 	const checkCommand = `grep -E '^PasswordAuthentication\\s+no' /etc/ssh/sshd_config || grep -E '^#?PasswordAuthentication\\s+yes' /etc/ssh/sshd_config`;
 	logCommand(checkCommand);
@@ -34,5 +34,6 @@ export async function disableSSHPasswordLogins(ssh: NodeSSH) {
 		);
 		throw new Error(`Failed to restart SSH service.`);
 	}
+	logger.info("Successfully restarted SSH service.");
 	logger.info("SSH password logins disabled successfully.");
 }
