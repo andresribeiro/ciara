@@ -2,6 +2,7 @@ import { NodeSSH } from "node-ssh";
 import { logger } from "../utils/logger";
 import { connectToSSH } from "./deploy-helpers/connectToSSH";
 import { copyCaddyfileToServer } from "./deploy-helpers/copyCaddyfileToServer";
+import { ensureCaddyInRunning } from "./deploy-helpers/ensureCaddyInRunning";
 import { ensureDockerIsInstalled } from "./deploy-helpers/ensureDockerIsInstalled";
 import { ensureFail2banIsConfigured } from "./deploy-helpers/ensureFail2banIsConfigured";
 import { ensureSSHPasswordLoginsAreDisabled } from "./deploy-helpers/ensureSSHPasswordLoginsAreDisabled";
@@ -35,6 +36,7 @@ export async function deployCommand() {
 				config.updates.reboots.enabled,
 				config.updates.reboots.time,
 			);
+			await ensureCaddyInRunning(ssh, server.ip);
 			// const localCaddyFilePath = await getCaddyfilePath(config.proxy.caddyfile);
 			// const { remoteCaddyfilePath, remoteCaddyServicePath } =
 			// 	await setupPersistentFolder(ssh);
