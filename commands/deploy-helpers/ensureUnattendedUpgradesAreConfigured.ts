@@ -25,7 +25,7 @@ export async function ensureUnattendedUpgradesAreConfigured(
 			"unattended-upgrades not found. Installing unattended-upgrades",
 		);
 		const installCommand =
-			"DEBIAN_FRONTEND=noninteractive sudo apt-get update && sudo apt-get install -y unattended-upgrades";
+			"sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y unattended-upgrades";
 		logCommand(installCommand);
 		const installResult = await ssh.execCommand(installCommand);
 		if (installResult.stderr) {
@@ -36,12 +36,12 @@ export async function ensureUnattendedUpgradesAreConfigured(
 		}
 		logger.info("unattended-upgrades installed successfully.");
 	}
-	logger.info("Updating apt.conf.d/20auto-upgrades");
+	const aptConfDPath = "/etc/apt/apt.conf.d/20auto-upgrades";
+	logger.info(`Updating ${aptConfDPath}`);
 	const aptConfDContent = `
     APT::Periodic::Update-Package-Lists "1";
     APT::Periodic::Unattended-Upgrade "1";
   `;
-	const aptConfDPath = "/etc/apt/apt.conf.d/20auto-upgrades";
 	const aptConfDCommand = `echo "${aptConfDContent}" | sudo tee ${aptConfDPath}`;
 	logCommand(aptConfDCommand);
 	const aptConfDResult = await ssh.execCommand(aptConfDCommand);
@@ -51,8 +51,10 @@ export async function ensureUnattendedUpgradesAreConfigured(
 		);
 		throw new Error(`Failed to write to ${aptConfDPath}`);
 	}
-	logger.info("Successfully updated apt.conf.d/20auto-upgrades");
-	logger.info("Updating apt.conf.d/50unattended-upgrades");
+	logger.info(`Successfully updated ${aptConfDPath}`);
+	const unattendedUpgradesConfigPath =
+		"/etc/apt/apt.conf.d/50unattended-upgrades";
+	logger.info(`Updating ${unattendedUpgradesConfigPath}`);
 	const unattendedUpgradesConfig = `
     Unattended-Upgrade::Automatic-Reboot "${rebootsEnabled}";
     Unattended-Upgrade::Automatic-Reboot-Time "${rebootsTime}";
@@ -60,14 +62,12 @@ export async function ensureUnattendedUpgradesAreConfigured(
     Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
     Unattended-Upgrade::Remove-Unused-Dependencies "true";
   `;
-	const unattendedUpgradesConfigPath =
-		"/etc/apt/apt.conf.d/50unattended-upgrades";
-	const unattendedUpgradesConfigCommand = `echo "${unattendedUpgradesConfig}" | sudo tee -a ${unattendedUpgradesConfigPath}`;
+	const unattendedUpgradesConfigCommand = `echo "${unattendedUpgradesConfig}" | sudo tee ${unattendedUpgradesConfigPath}`;
 	logCommand(unattendedUpgradesConfigCommand);
 	const unattendedUpgradesConfigResult = await ssh.execCommand(
 		unattendedUpgradesConfigCommand,
 	);
-	logger.info("Successfully updated apt.conf.d/50unattended-upgrades");
+	logger.info(`Successfully updated ${unattendedUpgradesConfigPath}`);
 	if (unattendedUpgradesConfigResult.code !== 0) {
 		logger.error(
 			`Failed to write to ${unattendedUpgradesConfigPath}: ${unattendedUpgradesConfigResult.stderr}`,

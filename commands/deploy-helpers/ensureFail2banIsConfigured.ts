@@ -11,7 +11,7 @@ export async function ensureFail2banIsConfigured(ssh: NodeSSH) {
 	if (!fail2banStatus.includes("Status: install ok installed")) {
 		logger.info("Fail2ban not found. Installing Fail2ban.");
 		const installCommand =
-			"DEBIAN_FRONTEND=noninteractive sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y fail2ban python3-systemd";
+			"sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y fail2ban python3-systemd";
 		// https://github.com/fail2ban/fail2ban/issues/3292#issuecomment-1678844644
 		logCommand(installCommand);
 		const { stderr: stderrInstallResult } =
@@ -61,7 +61,7 @@ export async function ensureFail2banIsConfigured(ssh: NodeSSH) {
 	const command = `echo "${jailLocalContent}" | sudo tee /etc/fail2ban/jail.local`;
 	logCommand(command);
 	const writeResult = await ssh.execCommand(command);
-	if (writeResult.stderr || writeResult.code !== 0) {
+	if (writeResult.stderr) {
 		logger.error(`Error setting jail.local config: ${writeResult.stderr}`);
 		throw new Error("Failed to write jail.local configuration.");
 	}

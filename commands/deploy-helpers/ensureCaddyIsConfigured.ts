@@ -1,8 +1,11 @@
 import type { NodeSSH } from "node-ssh";
 import { logCommand, logger } from "../../utils/logger";
 
-export async function ensureCaddyInRunning(ssh: NodeSSH, serverIp: string) {
-	logger.info(`Ensuring Caddy is installed and running.`);
+export async function ensureCaddyIsConfigured(
+	ssh: NodeSSH,
+	customCaddyfile: string | undefined,
+) {
+	logger.info(`Ensuring Caddy is configured.`);
 	logger.info("Checking if Caddy is already installed.");
 	const checkCaddyCommand = "which caddy";
 	logCommand(checkCaddyCommand);
@@ -52,7 +55,7 @@ export async function ensureCaddyInRunning(ssh: NodeSSH, serverIp: string) {
 		logger.info("Caddy repository added.");
 		logger.info("Installing Caddy.");
 		const installCaddyCommand =
-			"DEBIAN_FRONTEND=noninteractive sudo apt update && DEBIAN_FRONTEND=noninteractive sudo apt install -y caddy";
+			"sudo apt update && sudo DEBIAN_FRONTEND=noninteractive apt install -y caddy";
 		const installCaddyResult = await ssh.execCommand(installCaddyCommand);
 		if (installCaddyResult.code !== 0) {
 			logger.error(`Failed to install Caddy: ${installCaddyResult.stderr}`);
@@ -62,16 +65,16 @@ export async function ensureCaddyInRunning(ssh: NodeSSH, serverIp: string) {
 	}
 	const remoteCaddyfilePath = "/etc/caddy/Caddyfile";
 	logger.info(`Copying Caddyfile to ${remoteCaddyfilePath}.`);
-	const caddyfileContent = `
-  	localhost
+	const caddyfileContent = customCaddyfile
+		? await Bun.file(customCaddyfile).text()
+		: `
+	  :2024
     respond "Hello from Caddy!"
 	`;
-	const copyCaddyfileCommand = `echo "${caddyfileContent}" | sudo tee ${remoteCaddyfilePath}`;
+	const copyCaddyfileCommand = `echo '${caddyfileContent}' | sudo tee ${remoteCaddyfilePath} && caddy fmt --overwrite ${remoteCaddyfilePath}`;
 	logCommand(copyCaddyfileCommand);
-	const copyResult = await ssh.execCommand(
-		`echo "${copyCaddyfileCommand}" | sudo tee ${remoteCaddyfilePath}`,
-	);
-	if (copyResult.code !== 0) {
+	const copyResult = await ssh.execCommand(copyCaddyfileCommand);
+	if (copyResult.stderr) {
 		logger.error(`Failed to copy Caddyfile: ${copyResult.stderr}`);
 		throw new Error("Failed to copy Caddyfile.");
 	}
@@ -80,14 +83,17 @@ export async function ensureCaddyInRunning(ssh: NodeSSH, serverIp: string) {
 	const checkCaddyStatus = "systemctl is-active caddy";
 	logCommand(checkCaddyStatus);
 	const caddyStatusResult = await ssh.execCommand(checkCaddyStatus);
-	const isCaddyAlreadyRunning = caddyStatusResult.code !== 0;
+	const isCaddyAlreadyRunning = caddyStatusResult.stdout === "active";
 	if (isCaddyAlreadyRunning) {
 		logger.info("Caddy is already running.");
 		logger.info("Reloading Caddy configuration.");
-		const reloadResult = await ssh.execCommand(
-			`caddy reload -c ${remoteCaddyfilePath}`,
-		);
-		if (reloadResult.stderr) {
+		const reloadCommand = `caddy reload --config ${remoteCaddyfilePath} --adapter caddyfile`;
+		logCommand(reloadCommand);
+		const reloadResult = await ssh.execCommand(reloadCommand);
+		if (
+			!reloadResult.stderr.includes("adapted") &&
+			!reloadResult.stdout.includes("adapted")
+		) {
 			logger.error(`Error reloading Caddy: ${reloadResult.stderr}`);
 			throw new Error("Error reloading Caddy.");
 		}
@@ -99,20 +105,62 @@ export async function ensureCaddyInRunning(ssh: NodeSSH, serverIp: string) {
 			"sudo systemctl daemon-reload && sudo systemctl enable --now caddy";
 		logCommand(startCaddyService);
 		const startCaddyResult = await ssh.execCommand(startCaddyService);
-		if (startCaddyResult.code !== 0) {
+		if (startCaddyResult.stderr) {
 			logger.error(`Failed to start Caddy: ${startCaddyResult.stderr}`);
-			throw new Error(`Failed to start Caddy service on ${serverIp}`);
+			throw new Error(`Failed to start Caddy service.`);
 		}
 		logger.info("Caddy service started.");
 		logger.info("Checking Caddy service status.");
 		const checkCaddyServiceStatus = "systemctl status caddy";
 		logCommand(checkCaddyServiceStatus);
 		const statusResult = await ssh.execCommand(checkCaddyServiceStatus);
-		if (statusResult.stdout.includes("active (running)")) {
-			logger.info("Caddy service is active and running.");
-			return;
+		if (!statusResult.stdout.includes("active (running)")) {
+			logger.error(`Caddy service is not running.: ${statusResult.stdout}`);
+			throw new Error(`Caddy service is not running.`);
 		}
-		logger.error(`Caddy service is not running.: ${statusResult.stdout}`);
-		throw new Error(`Caddy service is not running.`);
+		logger.info("Caddy service is active and running.");
+		logger.info("Checking if Caddy is configured to start on boot.");
+		const caddyServiceFilePath = "/etc/systemd/system/caddy.service";
+		const checkServiceFileCommand = `sudo test -f ${caddyServiceFilePath}`;
+		logCommand(checkServiceFileCommand);
+		const checkServiceFileResult = await ssh.execCommand(
+			checkServiceFileCommand,
+		);
+		if (checkServiceFileResult.stderr) {
+			logger.info("Caddy is not configured no start on boot.");
+			logger.info("Configuring Caddy to start on boot.");
+			logger.info("Creating Caddy systemd service file.");
+			const serviceFileContent = `
+        Description=Caddy
+        Documentation=https://caddyserver.com/docs/
+        After=network.target
+
+        [Service]
+        ExecStart=/usr/bin/caddy run --environ --config /etc/caddy/Caddyfile
+        ExecReload=/usr/bin/caddy reload --config /etc/caddy/Caddyfile
+        TimeoutStopSec=5s
+        LimitNOFILE=1048576
+        LimitNPROC=512
+        PrivateTmp=true
+        ProtectSystem=full
+        AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+        [Install]
+        WantedBy=multi-user.target
+      `;
+			const createServiceFileCommand = `echo "${serviceFileContent.trim()}" | sudo tee ${caddyServiceFilePath}`;
+			logCommand(createServiceFileCommand);
+			const createServiceFileResult = await ssh.execCommand(
+				createServiceFileCommand,
+			);
+			if (createServiceFileResult.stderr) {
+				logger.error(
+					`Failed to create Caddy service file: ${createServiceFileResult.stderr}`,
+				);
+				throw new Error("Failed to create Caddy systemd service file.");
+			}
+			logger.info("Caddy systemd service file created successfully.");
+			logger.info("Caddy is now configured to start on boot.");
+		}
 	}
 }

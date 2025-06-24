@@ -1,19 +1,12 @@
 import { NodeSSH } from "node-ssh";
 import { logger } from "../utils/logger";
 import { connectToSSH } from "./deploy-helpers/connectToSSH";
-import { copyCaddyfileToServer } from "./deploy-helpers/copyCaddyfileToServer";
-import { ensureCaddyInRunning } from "./deploy-helpers/ensureCaddyInRunning";
+import { ensureCaddyIsConfigured } from "./deploy-helpers/ensureCaddyIsConfigured";
 import { ensureDockerIsInstalled } from "./deploy-helpers/ensureDockerIsInstalled";
 import { ensureFail2banIsConfigured } from "./deploy-helpers/ensureFail2banIsConfigured";
 import { ensureSSHPasswordLoginsAreDisabled } from "./deploy-helpers/ensureSSHPasswordLoginsAreDisabled";
 import { ensureUnattendedUpgradesAreConfigured } from "./deploy-helpers/ensureUnattendedUpgradesAreConfigured";
-import { getCaddyfilePath } from "./deploy-helpers/getCaddyfilePath";
-import { pruneImages } from "./deploy-helpers/pruneImages";
-import { pullCaddyDockerImages } from "./deploy-helpers/pullCaddyDockerImage";
 import { readCiaraConfig } from "./deploy-helpers/readCiaraConfig";
-import { setupCaddy } from "./deploy-helpers/setupCaddy";
-import { setupCaddyfilePermissions } from "./deploy-helpers/setupCaddyfilePermissions";
-import { setupPersistentFolder } from "./deploy-helpers/setupPersistentFolder";
 import { startNewContainer } from "./deploy-helpers/startNewContainer";
 import { stopOldContainer } from "./deploy-helpers/stopOldContainer";
 
@@ -36,14 +29,7 @@ export async function deployCommand() {
 				config.updates.reboots.enabled,
 				config.updates.reboots.time,
 			);
-			await ensureCaddyInRunning(ssh, server.ip);
-			// const localCaddyFilePath = await getCaddyfilePath(config.proxy.caddyfile);
-			// const { remoteCaddyfilePath, remoteCaddyServicePath } =
-			// 	await setupPersistentFolder(ssh);
-			// await copyCaddyfileToServer(ssh, localCaddyFilePath, remoteCaddyfilePath);
-			// await setupCaddyfilePermissions(ssh, remoteCaddyfilePath);
-			// await pullCaddyDockerImages(ssh);
-			// await setupCaddy(ssh);
+			await ensureCaddyIsConfigured(ssh, config.proxy.caddyfile);
 			// await startNewContainer(ssh);
 			// await stopOldContainer(ssh);
 			// await pruneImages(ssh);
