@@ -1,6 +1,6 @@
 # Ciara
 
-Deploy any application in `N` servers in `4` minutes from your terminal
+Securely deploy any application on any server in `4` minutes.
 
 - 🛠️ No DevOps Knowledge Required - Focus on your code. Ciara focus on your deployment.
 - 🗄️ VM OR Bare Metal - Deploy on any server, cloud or on-premises.
