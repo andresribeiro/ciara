@@ -9,11 +9,11 @@ export async function connectToSSH(
 ) {
 	try {
 		logger.info(
-			`Connecting to ${server.ip} via SSH on user ${server.user} on port ${server.port}.`,
+			`Connecting to ${server.ip} via SSH on on port ${server.port}.`,
 		);
 		await ssh.connect({
 			host: server.ip,
-			username: server.user,
+			username: "root",
 			port: server.port,
 			privateKeyPath: privateSSHKeyPath,
 		});

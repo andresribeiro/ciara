@@ -28,7 +28,7 @@ export async function initCommand() {
 			type: "list",
 			name: "defaultPort",
 			message: "Is SSH running on the default port (22)?",
-			choices: ["Yes", "No", "I don't know"],
+			choices: ["Yes", "No"],
 		},
 		{
 			type: "input",
@@ -41,18 +41,6 @@ export async function initCommand() {
 					return true;
 				}
 				return "Please enter a valid port number (1-65535).";
-			},
-		},
-		{
-			type: "input",
-			name: "user",
-			message: "What is your SSH user for connecting to the server?",
-			default: "root",
-			validate: (value: string) => {
-				if (value.length) {
-					return true;
-				}
-				return "Please enter a username.";
 			},
 		},
 		{
@@ -102,7 +90,6 @@ export async function initCommand() {
 				{
 					ip: answers.ip,
 					port: answers.defaultPort === "No" ? answers.port : "22",
-					user: answers.user,
 				},
 			],
 			ssh: {

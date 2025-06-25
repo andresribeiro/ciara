@@ -6,7 +6,6 @@ export const ServersType = type({
 	"+": "reject",
 	ip: "string",
 	port: type("string.integer.parse").to("0 < number.integer <= 65536"),
-	user: "string",
 });
 
 export const SSHType = type({
