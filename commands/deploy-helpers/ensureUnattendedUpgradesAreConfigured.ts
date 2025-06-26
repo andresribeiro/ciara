@@ -1,5 +1,6 @@
 import type { NodeSSH } from "node-ssh";
-import { logCommand, logger } from "../../utils/logger";
+import { executeCommand } from "../../utils/executeCommand";
+import { logger } from "../../utils/logger";
 
 export async function ensureUnattendedUpgradesAreConfigured(
 	ssh: NodeSSH,
@@ -8,11 +9,9 @@ export async function ensureUnattendedUpgradesAreConfigured(
 ) {
 	logger.info("Ensuring unattended-upgrades is configured.");
 	logger.info("Checking if unattended-upgrades is installed.");
-	const checkIfUnattendedUpgradesIsInstalledCommand =
-		"dpkg -s unattended-upgrades";
-	logCommand(checkIfUnattendedUpgradesIsInstalledCommand);
-	const checkIfUnattendedUpgradesIsInstalledResult = await ssh.execCommand(
-		checkIfUnattendedUpgradesIsInstalledCommand,
+	const checkIfUnattendedUpgradesIsInstalledResult = await executeCommand(
+		ssh,
+		"dpkg -s unattended-upgrades",
 	);
 	if (
 		checkIfUnattendedUpgradesIsInstalledResult.stdout.includes(
@@ -24,10 +23,10 @@ export async function ensureUnattendedUpgradesAreConfigured(
 		logger.info(
 			"unattended-upgrades not found. Installing unattended-upgrades",
 		);
-		const installCommand =
-			"sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y unattended-upgrades";
-		logCommand(installCommand);
-		const installResult = await ssh.execCommand(installCommand);
+		const installResult = await executeCommand(
+			ssh,
+			"sudo DEBIAN_FRONTEND=noninteractive apt-get update && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y unattended-upgrades",
+		);
 		if (installResult.stderr) {
 			logger.error(
 				`Failed to install unattended-upgrades: ${installResult.stderr}`,
@@ -42,9 +41,10 @@ export async function ensureUnattendedUpgradesAreConfigured(
     APT::Periodic::Update-Package-Lists "1";
     APT::Periodic::Unattended-Upgrade "1";
   `;
-	const aptConfDCommand = `echo "${aptConfDContent}" | sudo tee ${aptConfDPath}`;
-	logCommand(aptConfDCommand);
-	const aptConfDResult = await ssh.execCommand(aptConfDCommand);
+	const aptConfDResult = await executeCommand(
+		ssh,
+		`echo "${aptConfDContent}" | sudo tee ${aptConfDPath}`,
+	);
 	if (aptConfDResult.code !== 0) {
 		logger.error(
 			`Failed to write to ${aptConfDPath}: ${aptConfDResult.stderr}`,
@@ -62,10 +62,9 @@ export async function ensureUnattendedUpgradesAreConfigured(
     Unattended-Upgrade::Remove-New-Unused-Dependencies "true";
     Unattended-Upgrade::Remove-Unused-Dependencies "true";
   `;
-	const unattendedUpgradesConfigCommand = `echo "${unattendedUpgradesConfig}" | sudo tee ${unattendedUpgradesConfigPath}`;
-	logCommand(unattendedUpgradesConfigCommand);
-	const unattendedUpgradesConfigResult = await ssh.execCommand(
-		unattendedUpgradesConfigCommand,
+	const unattendedUpgradesConfigResult = await executeCommand(
+		ssh,
+		`echo "${unattendedUpgradesConfig}" | sudo tee ${unattendedUpgradesConfigPath}`,
 	);
 	logger.info(`Successfully updated ${unattendedUpgradesConfigPath}`);
 	if (unattendedUpgradesConfigResult.code !== 0) {

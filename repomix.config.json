@@ -29,7 +29,7 @@
 		"customPatterns": []
 	},
 	"security": {
-		"enableSecurityCheck": true
+		"enableSecurityCheck": false
 	},
 	"tokenCount": {
 		"encoding": "o200k_base"

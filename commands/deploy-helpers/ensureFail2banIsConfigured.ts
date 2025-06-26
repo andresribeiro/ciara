@@ -1,21 +1,20 @@
 import type { NodeSSH } from "node-ssh";
-import { logCommand, logger } from "../../utils/logger";
+import { executeCommand } from "../../utils/executeCommand";
+import { logger } from "../../utils/logger";
 
 export async function ensureFail2banIsConfigured(ssh: NodeSSH) {
 	logger.info("Checking if Fail2ban is installed.");
-	const checkFail2banInstalledCommand = "dpkg -s fail2ban";
-	logCommand(checkFail2banInstalledCommand);
-	const { stdout: fail2banStatus } = await ssh.execCommand(
-		checkFail2banInstalledCommand,
+	const { stdout: fail2banStatus } = await executeCommand(
+		ssh,
+		"dpkg -s fail2ban",
 	);
 	if (!fail2banStatus.includes("Status: install ok installed")) {
 		logger.info("Fail2ban not found. Installing Fail2ban.");
-		const installCommand =
-			"sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y fail2ban python3-systemd";
+		const { stderr: stderrInstallResult } = await executeCommand(
+			ssh,
+			"sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y fail2ban python3-systemd",
+		);
 		// https://github.com/fail2ban/fail2ban/issues/3292#issuecomment-1678844644
-		logCommand(installCommand);
-		const { stderr: stderrInstallResult } =
-			await ssh.execCommand(installCommand);
 		if (stderrInstallResult) {
 			logger.error(`Error installing Fail2ban: ${stderrInstallResult}`);
 			throw new Error("Fail2ban installation failed.");
@@ -29,16 +28,18 @@ export async function ensureFail2banIsConfigured(ssh: NodeSSH) {
 	logger.info("Checking if jail.local exists.");
 	const checkIfJailLocalExistsCommand =
 		"test -f /etc/fail2ban/jail.local && echo true || echo false";
-	logCommand(checkIfJailLocalExistsCommand);
-	const jailLocalCheck = await ssh.execCommand(checkIfJailLocalExistsCommand);
+	const jailLocalCheck = await executeCommand(
+		ssh,
+		checkIfJailLocalExistsCommand,
+	);
 	if (jailLocalCheck.stdout.trim() === "false") {
 		logger.info(
 			"jail.local does not exists. Creating jail.local from jail.conf.",
 		);
-		const copyJailConfCommand =
-			"sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local";
-		logCommand(copyJailConfCommand);
-		const copyResult = await ssh.execCommand(copyJailConfCommand);
+		const copyResult = await executeCommand(
+			ssh,
+			"sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local",
+		);
 		if (copyResult.stderr) {
 			logger.error(`Error copying jail.conf: ${copyResult.stderr}`);
 			throw new Error("Failed to create jail.local.");
@@ -58,17 +59,19 @@ export async function ensureFail2banIsConfigured(ssh: NodeSSH) {
     maxretry = 3
     bantime = 3600
   `;
-	const command = `echo "${jailLocalContent}" | sudo tee /etc/fail2ban/jail.local`;
-	logCommand(command);
-	const writeResult = await ssh.execCommand(command);
+	const writeResult = await executeCommand(
+		ssh,
+		`echo "${jailLocalContent}" | sudo tee /etc/fail2ban/jail.local`,
+	);
 	if (writeResult.stderr) {
 		logger.error(`Error setting jail.local config: ${writeResult.stderr}`);
 		throw new Error("Failed to write jail.local configuration.");
 	}
 	logger.info("Restarting Fail2ban service.");
-	const restartFail2banServiceCommand = "sudo systemctl restart fail2ban";
-	logCommand(restartFail2banServiceCommand);
-	const restartResult = await ssh.execCommand(restartFail2banServiceCommand);
+	const restartResult = await executeCommand(
+		ssh,
+		"sudo systemctl restart fail2ban",
+	);
 	if (restartResult.stderr) {
 		logger.error(`Error restarting Fail2ban service: ${restartResult.stderr}`);
 		throw new Error("Failed to restart Fail2ban service.");

@@ -1,5 +1,6 @@
 import { NodeSSH } from "node-ssh";
 import { logger } from "../utils/logger";
+import { buildAndDeployApplication } from "./deploy-helpers/buildAndDeployApplication";
 import { connectToSSH } from "./deploy-helpers/connectToSSH";
 import { ensureCaddyIsConfigured } from "./deploy-helpers/ensureCaddyIsConfigured";
 import { ensureDockerIsInstalled } from "./deploy-helpers/ensureDockerIsInstalled";
@@ -7,8 +8,6 @@ import { ensureFail2banIsConfigured } from "./deploy-helpers/ensureFail2banIsCon
 import { ensureSSHPasswordLoginsAreDisabled } from "./deploy-helpers/ensureSSHPasswordLoginsAreDisabled";
 import { ensureUnattendedUpgradesAreConfigured } from "./deploy-helpers/ensureUnattendedUpgradesAreConfigured";
 import { readCiaraConfig } from "./deploy-helpers/readCiaraConfig";
-import { startNewContainer } from "./deploy-helpers/startNewContainer";
-import { stopOldContainer } from "./deploy-helpers/stopOldContainer";
 
 export async function deployCommand() {
 	const config = await readCiaraConfig();
@@ -29,10 +28,8 @@ export async function deployCommand() {
 				config.updates.reboots.enabled,
 				config.updates.reboots.time,
 			);
-			await ensureCaddyIsConfigured(ssh, config.proxy.caddyfile);
-			// await startNewContainer(ssh);
-			// await stopOldContainer(ssh);
-			// await pruneImages(ssh);
+			// await buildAndDeployApplication(ssh, config.appName);
+			// await ensureCaddyIsConfigured(ssh, config.proxy.caddyfile);
 
 			logger.info(`Deployed on ${server.ip}.`);
 			logger.info(`Disconnecting from ${server.ip}.`);

@@ -8,7 +8,7 @@ export const ServersType = type({
 	port: type("string.integer.parse").to("0 < number.integer <= 65536"),
 });
 
-export const SSHType = type({
+const SSHType = type({
 	"+": "reject",
 	privateKeyPath: "string",
 });
@@ -52,6 +52,7 @@ const UpdatesType = type({
 
 export const CiaraConfig = type({
 	"+": "reject",
+	appName: "string",
 	servers: ServersType.array().atLeastLength(1),
 	ssh: SSHType,
 	"env?": "string",

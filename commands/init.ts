@@ -12,6 +12,18 @@ export async function initCommand() {
 	const questions = [
 		{
 			type: "input",
+			name: "appName",
+			message: "What is your app name?",
+			validate: (value: string) => {
+				const pass = value.match(/^[a-zA-Z0-9_-]+$/);
+				if (pass) {
+					return true;
+				}
+				return "Please enter a valid app name (only letters, numbers, -, and _ are allowed).";
+			},
+		},
+		{
+			type: "input",
 			name: "ip",
 			message: "What is the IP address of the server?",
 			validate: (value: string) => {
@@ -46,7 +58,7 @@ export async function initCommand() {
 		{
 			type: "number",
 			name: "appPort",
-			message: "Which port is your application running on?:",
+			message: "Which port is your application running on?",
 			default: 3000,
 			validate: (value: number) => {
 				if (value === 80 || value === 443) {
@@ -86,6 +98,7 @@ export async function initCommand() {
 			return path.join(sshDir, "id_rsa");
 		}
 		const config = {
+			appName: answers.appName,
 			servers: [
 				{
 					ip: answers.ip,

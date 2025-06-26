@@ -1,5 +1,6 @@
 import type { NodeSSH } from "node-ssh";
-import { logCommand, logger } from "../../utils/logger";
+import { executeCommand } from "../../utils/executeCommand";
+import { logger } from "../../utils/logger";
 
 const caddyContainerName = "caddy";
 const dockerNetworkName = "ciara-network";
@@ -12,14 +13,16 @@ export async function ensureCaddyIsConfigured(
 ) {
 	logger.info(`Ensuring Caddy is configured.`);
 	logger.info(`Checking if Docker network '${dockerNetworkName}' exists.`);
-	const networkCheckCommand = `docker network inspect ${dockerNetworkName}`;
-	logCommand(networkCheckCommand);
-	const networkCheckResult = await ssh.execCommand(networkCheckCommand);
+	const networkCheckResult = await executeCommand(
+		ssh,
+		`docker network inspect ${dockerNetworkName}`,
+	);
 	if (networkCheckResult.code !== 0) {
 		logger.info(`Network ${dockerNetworkName} does not exists. Creating it.`);
-		const createNetworkCommand = `docker network create ${dockerNetworkName}`;
-		logCommand(createNetworkCommand);
-		const createNetworkResult = await ssh.execCommand(createNetworkCommand);
+		const createNetworkResult = await executeCommand(
+			ssh,
+			`docker network create ${dockerNetworkName}`,
+		);
 		if (createNetworkResult.code !== 0) {
 			logger.error(
 				`Failed to create Docker network: ${createNetworkResult.stderr}`,
@@ -37,24 +40,27 @@ export async function ensureCaddyIsConfigured(
 	  :80, :443
     respond "Hey from Caddy!"
 	`;
-	const copyCaddyfileCommand = `sudo mkdir -p ${remoteCaddyParentFolder} && echo '${caddyfileContent}' | sudo tee ${remoteCaddyfilePath}`;
-	logCommand(copyCaddyfileCommand);
-	const copyResult = await ssh.execCommand(copyCaddyfileCommand);
+	const copyResult = await executeCommand(
+		ssh,
+		`sudo mkdir -p ${remoteCaddyParentFolder} && echo '${caddyfileContent}' | sudo tee ${remoteCaddyfilePath}`,
+	);
 	if (copyResult.stderr) {
 		logger.error(`Failed to copy Caddyfile: ${copyResult.stderr}`);
 		throw new Error("Failed to copy Caddyfile.");
 	}
 	logger.info("Caddyfile copied.");
 	logger.info("Checking if Caddy container is running.");
-	const checkCaddyCommand = `docker ps -f name=${caddyContainerName} --format "{{.Names}}"`;
-	logCommand(checkCaddyCommand);
-	const checkResult = await ssh.execCommand(checkCaddyCommand);
+	const checkResult = await executeCommand(
+		ssh,
+		`docker ps -f name=${caddyContainerName} --format "{{.Names}}"`,
+	);
 	const isCaddyRunning = checkResult.stdout.trim() === caddyContainerName;
 	if (isCaddyRunning) {
 		logger.info("Caddy is already running. Reloading configuration.");
-		const reloadCommand = `docker exec -w /etc/caddy ${caddyContainerName} caddy reload`;
-		logCommand(reloadCommand);
-		const reloadResult = await ssh.execCommand(reloadCommand);
+		const reloadResult = await executeCommand(
+			ssh,
+			`docker exec -w /etc/caddy ${caddyContainerName} caddy reload`,
+		);
 		if (reloadResult.code !== 0) {
 			logger.error(`Error reloading Caddy: ${reloadResult.stderr}`);
 			throw new Error("Error reloading Caddy.");
@@ -63,22 +69,19 @@ export async function ensureCaddyIsConfigured(
 	} else {
 		logger.info("Caddy is not running.");
 		logger.info("Removing old containers.");
-		const removeOldContainerCommand = `docker rm -f ${caddyContainerName}`;
-		logCommand(removeOldContainerCommand);
-		await ssh.execCommand(removeOldContainerCommand); // We don't care if it fails (e.g., if it doesn't exist)
+		await executeCommand(ssh, `docker rm -f ${caddyContainerName}`); // We don't care if it fails (e.g., if it doesn't exist)
 		logger.info("Old containers removed.");
 		logger.info("Pulling latest Caddy image.");
-		const pullCommand = "docker pull caddy:latest";
-		logCommand(pullCommand);
-		const pullResult = await ssh.execCommand(pullCommand);
+		const pullResult = await executeCommand(ssh, "docker pull caddy:latest");
 		if (pullResult.code !== 0) {
 			logger.error(`Failed to pull Caddy image: ${pullResult.stderr}`);
 			throw new Error("Failed to pull Caddy image.");
 		}
 		logger.info("Starting Caddy container.");
-		const startCaddyContainerCommand = `docker run -d --name ${caddyContainerName} --network ${dockerNetworkName} -p 80:80 -p 443:443 -p 443:443/udp -v ${remoteCaddyParentFolder}:/etc/caddy -v caddy_data:/data -v caddy_config:/config caddy:latest`;
-		logCommand(startCaddyContainerCommand);
-		const startResult = await ssh.execCommand(startCaddyContainerCommand);
+		const startResult = await executeCommand(
+			ssh,
+			`docker run -d --name ${caddyContainerName} --network ${dockerNetworkName} -p 80:80 -p 443:443 -p 443:443/udp -v ${remoteCaddyParentFolder}:/etc/caddy -v caddy_data:/data -v caddy_config:/config caddy:latest`,
+		);
 		if (startResult.code !== 0) {
 			logger.error(`Failed to start Caddy container: ${startResult.stderr}`);
 			throw new Error("Failed to start Caddy container.");
