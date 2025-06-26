@@ -57,8 +57,6 @@ export async function buildAndDeployApplication(ssh: NodeSSH, appName: string) {
 		}
 		logger.info("Docker image built.");
 		logger.info(`Image tagged as ${imageName}.`);
-	} catch (error) {
-		throw error;
 	} finally {
 		logger.info(`Cleaning up temporary directory: ${remoteTempDir}.`);
 		await executeCommand(ssh, `rm -rf ${remoteTempDir}`);

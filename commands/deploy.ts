@@ -1,8 +1,8 @@
 import { NodeSSH } from "node-ssh";
 import { logger } from "../utils/logger";
-import { buildAndDeployApplication } from "./deploy-helpers/buildAndDeployApplication";
+// import { buildAndDeployApplication } from "./deploy-helpers/buildAndDeployApplication";
 import { connectToSSH } from "./deploy-helpers/connectToSSH";
-import { ensureCaddyIsConfigured } from "./deploy-helpers/ensureCaddyIsConfigured";
+// import { ensureCaddyIsConfigured } from "./deploy-helpers/ensureCaddyIsConfigured";
 import { ensureDockerIsInstalled } from "./deploy-helpers/ensureDockerIsInstalled";
 import { ensureFail2banIsConfigured } from "./deploy-helpers/ensureFail2banIsConfigured";
 import { ensureSSHPasswordLoginsAreDisabled } from "./deploy-helpers/ensureSSHPasswordLoginsAreDisabled";

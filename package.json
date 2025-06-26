@@ -1,24 +1,25 @@
 {
-  "name": "ciara",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "bin": {
-    "ciara": "./index.ts"
-  },
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/yargs": "^17.0.33"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "arktype": "^2.1.20",
-    "inquirer": "^12.6.3",
-    "node-ssh": "^13.2.1",
-    "pino": "^9.7.0",
-    "pino-pretty": "^13.0.0",
-    "yargs": "^18.0.0"
-  }
+	"name": "ciara",
+	"module": "index.ts",
+	"type": "module",
+	"private": true,
+	"bin": {
+		"ciara": "./index.ts"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.0.5",
+		"@types/bun": "latest",
+		"@types/yargs": "^17.0.33"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	},
+	"dependencies": {
+		"arktype": "^2.1.20",
+		"inquirer": "^12.6.3",
+		"node-ssh": "^13.2.1",
+		"pino": "^9.7.0",
+		"pino-pretty": "^13.0.0",
+		"yargs": "^18.0.0"
+	}
 }
