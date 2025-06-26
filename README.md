@@ -22,12 +22,12 @@ ciara init
 Output:
 
 ```bash
+✔ What is your app name? my-website
 ✔ What is the IP address of the server? 127.0.0.1
 ✔ Is SSH running on the default port (22)? Yes
-✔ What is your SSH user for connecting to the server? root
-✔ Which port is your application running on?: 3000
+✔ Which port is your application running on? 3000
 ✔ Would you like to setup a domain? Yes
-✔ Enter your domain: api.example.com
+✔ Enter your domain: example.com
 Successfully created ciara.config.json
 ```
 
