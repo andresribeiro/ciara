@@ -4,8 +4,11 @@ import { logger } from "../../utils/logger";
 
 export async function ensureDockerIsInstalled(ssh: NodeSSH) {
 	logger.info("Ensuring Docker is installed.");
-	const { stdout, code } = await executeCommand(ssh, "docker --version");
-	if (code === 0 && stdout.includes("Docker version")) {
+	const dockerCheckResult = await executeCommand(
+		ssh,
+		"command -v docker >/dev/null 2>&1 || exit 1",
+	);
+	if (dockerCheckResult) {
 		logger.info("Docker is already installed.");
 		return;
 	}

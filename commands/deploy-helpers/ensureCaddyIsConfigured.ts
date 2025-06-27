@@ -1,44 +1,25 @@
 import type { NodeSSH } from "node-ssh";
 import { executeCommand } from "../../utils/executeCommand";
 import { logger } from "../../utils/logger";
+import type { ProxyType } from "../validate";
+import { dockerNetworkName } from "./ensureDockerNetworkIsConfigured";
 
 const caddyContainerName = "caddy";
-const dockerNetworkName = "ciara-network";
 const remoteCaddyParentFolder = "/root/conf";
 const remoteCaddyfilePath = `${remoteCaddyParentFolder}/Caddyfile`;
 
 export async function ensureCaddyIsConfigured(
 	ssh: NodeSSH,
-	customCaddyfile: string | undefined,
+	appContainerName: string,
+	proxySettings: typeof ProxyType.infer,
 ) {
 	logger.info(`Ensuring Caddy is configured.`);
-	logger.info(`Checking if Docker network '${dockerNetworkName}' exists.`);
-	const networkCheckResult = await executeCommand(
-		ssh,
-		`docker network inspect ${dockerNetworkName}`,
-	);
-	if (networkCheckResult.code !== 0) {
-		logger.info(`Network ${dockerNetworkName} does not exists. Creating it.`);
-		const createNetworkResult = await executeCommand(
-			ssh,
-			`docker network create ${dockerNetworkName}`,
-		);
-		if (createNetworkResult.code !== 0) {
-			logger.error(
-				`Failed to create Docker network: ${createNetworkResult.stderr}`,
-			);
-			throw new Error("Failed to create Docker network.");
-		}
-		logger.info(`Docker network '${dockerNetworkName}' created.`);
-	} else {
-		logger.info(`Docker network '${dockerNetworkName}' already exists.`);
-	}
 	logger.info(`Copying Caddyfile to ${remoteCaddyfilePath}.`);
-	const caddyfileContent = customCaddyfile
-		? await Bun.file(customCaddyfile).text()
+	const caddyfileContent = proxySettings.caddyfile
+		? await Bun.file(proxySettings.caddyfile).text()
 		: `
 	  :80, :443
-    respond "Hey from Caddy!"
+    reverse_proxy ${appContainerName}:${proxySettings.port}
 	`;
 	const copyResult = await executeCommand(
 		ssh,

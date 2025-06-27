@@ -27,7 +27,7 @@ const FirewallInboundType = type({
 	allow: type("'*'").or(type("string").array()),
 });
 
-const ProxyType = type({
+export const ProxyType = type({
 	"+": "reject",
 	port: type("number.integer").to("0 < number.integer <= 65536"),
 	"domains?": type("string").array(),

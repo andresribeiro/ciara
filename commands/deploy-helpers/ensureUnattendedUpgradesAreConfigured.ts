@@ -11,13 +11,9 @@ export async function ensureUnattendedUpgradesAreConfigured(
 	logger.info("Checking if unattended-upgrades is installed.");
 	const checkIfUnattendedUpgradesIsInstalledResult = await executeCommand(
 		ssh,
-		"dpkg -s unattended-upgrades",
+		"dpkg -l | grep -q '^ii.*unattended-upgrades' || exit 1",
 	);
-	if (
-		checkIfUnattendedUpgradesIsInstalledResult.stdout.includes(
-			"Status: install ok installed",
-		)
-	) {
+	if (checkIfUnattendedUpgradesIsInstalledResult.code === 0) {
 		logger.info("unattended-upgrades is already installed.");
 	} else {
 		logger.info(

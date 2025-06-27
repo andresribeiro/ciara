@@ -4,11 +4,11 @@ import { logger } from "../../utils/logger";
 
 export async function ensureFail2banIsConfigured(ssh: NodeSSH) {
 	logger.info("Checking if Fail2ban is installed.");
-	const { stdout: fail2banStatus } = await executeCommand(
+	const fail2banResult = await executeCommand(
 		ssh,
-		"dpkg -s fail2ban",
+		"dpkg -l | grep -q '^ii.*fail2ban' || exit 1",
 	);
-	if (!fail2banStatus.includes("Status: install ok installed")) {
+	if (fail2banResult.code !== 0) {
 		logger.info("Fail2ban not found. Installing Fail2ban.");
 		const { stderr: stderrInstallResult } = await executeCommand(
 			ssh,
