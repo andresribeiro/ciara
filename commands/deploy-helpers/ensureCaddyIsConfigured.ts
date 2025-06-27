@@ -40,7 +40,9 @@ export async function ensureCaddyIsConfigured(
 		logger.info("Caddy is already running. Reloading configuration.");
 		const reloadResult = await executeCommand(
 			ssh,
-			`docker exec -w /etc/caddy ${caddyContainerName} caddy reload`,
+			`docker exec -w /etc/caddy ${caddyContainerName} caddy fmt /etc/caddy/Caddyfile --overwrite && docker exec -w /etc/caddy ${caddyContainerName} caddy reload 2>&1`,
+			// we need to format Caddyfile because Caddy shows an log if it's not formatted
+			// and we need 2>&1 because it's as an error (stderr),
 		);
 		if (reloadResult.code !== 0) {
 			logger.error(`Error reloading Caddy: ${reloadResult.stderr}`);
@@ -50,7 +52,7 @@ export async function ensureCaddyIsConfigured(
 	} else {
 		logger.info("Caddy is not running.");
 		logger.info("Removing old containers.");
-		await executeCommand(ssh, `docker rm -f ${caddyContainerName}`); // We don't care if it fails (e.g., if it doesn't exist)
+		await executeCommand(ssh, `docker rm -f ${caddyContainerName}`); // we don't care if it fails (e.g., if it doesn't exist)
 		logger.info("Old containers removed.");
 		logger.info("Pulling latest Caddy image.");
 		const pullResult = await executeCommand(ssh, "docker pull caddy:latest");

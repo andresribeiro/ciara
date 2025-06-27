@@ -40,7 +40,6 @@ export async function deployCommand() {
 				config.servers[0]?.ip as string,
 				config.appName,
 			);
-			console.log("ok");
 			await ensureDockerNetworkIsConfigured(ssh);
 			const { containerName } = await startNewContainer(
 				ssh,

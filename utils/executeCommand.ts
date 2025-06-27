@@ -13,8 +13,14 @@ export async function executeCommand(
 	const startTime = Date.now();
 	const result = await ssh.execCommand(command, {
 		cwd,
-		onStdout: (chunk) => logger.debug(chunk.toString("utf8").trim()),
-		onStderr: (chunk) => logger.error(chunk.toString("utf8").trim()),
+		onStdout: (chunk) => {
+			const trimmed = chunk.toString("utf8").trim();
+			trimmed.length > 0 && logger.debug(trimmed);
+		},
+		onStderr: (chunk) => {
+			const trimmed = chunk.toString("utf8").trim();
+			trimmed.length > 0 && logger.error(trimmed);
+		},
 		noTrim: false,
 	});
 	const endTime = Date.now();
