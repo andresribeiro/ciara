@@ -49,7 +49,6 @@ export async function deployCommand() {
 			await ensureCaddyIsConfigured(ssh, containerName, config.proxy);
 			await doHealthchecks(ssh);
 			await stopOldContainers(ssh);
-			logger.info(`Deployed on ${server.ip}.`);
 		} catch (error) {
 			logger.error(`Could not deploy to ${server.ip}. Aborting. ${error}`);
 			allOk = false;
@@ -58,7 +57,7 @@ export async function deployCommand() {
 			const durationMs = currentServerEndTime - currentServerStartTime;
 			const durationSeconds = durationMs / 1000;
 			logger.info(
-				`Finished deploy on ${server.ip} in ${durationSeconds.toFixed(2)} seconds.`,
+				`Deploy on ${server.ip} in ${durationSeconds.toFixed(2)} seconds.`,
 			);
 			logger.info(`Disconnecting from ${server.ip}.`);
 			ssh.dispose();
