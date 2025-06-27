@@ -14,15 +14,28 @@ export async function buildImage(builderIp: string, appName: string) {
 		}
 		logger.info("A builder instance is available and ready.");
 		logger.info(`Building Docker image: ${imageName}.`);
-		try {
-			for await (const line of $`docker --context ${dockerBuilderName} build -t ${imageName} .`.lines()) {
-				line.length > 0 && logger.debug(line);
-			}
-			logger.info("Docker image built.");
-		} catch (error) {
-			logger.error(`Docker build failed: ${error}`);
+		const proc = Bun.spawn({
+			cmd: [
+				"docker",
+				"--context",
+				dockerBuilderName,
+				"build",
+				"--progress",
+				"tty",
+				"-t",
+				imageName,
+				".",
+			],
+			stdin: "inherit",
+			stdout: "inherit",
+			stderr: "inherit",
+		});
+		const exit_code = await proc.exited;
+		if (exit_code !== 0) {
+			logger.error(`Docker build failed: ${exit_code}`);
 			throw new Error(`Docker build failed.`);
 		}
+		logger.info("Docker image built.");
 		return { imageName };
 	} catch (error) {
 		logger.error(error);
