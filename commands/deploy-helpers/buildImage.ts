@@ -13,7 +13,7 @@ export async function buildImage(builderIp: string, appName: string) {
 			line.length > 0 && logger.debug(line);
 		}
 		logger.info("A builder instance is available and ready.");
-		logger.info(`Building Docker image: ${imageName}.`);
+		logger.info("Building Docker image.");
 		const proc = Bun.spawn({
 			cmd: [
 				"docker",
