@@ -21,7 +21,9 @@ export async function deployCommand() {
 	}
 	const servers = config.servers;
 	let allOk = true;
+	const allServersStartTime = Date.now();
 	for (const server of servers) {
+		const currentServerStartTime = Date.now();
 		const ssh = new NodeSSH();
 		try {
 			await connectToSSH(ssh, server, config.ssh.privateKeyPath);
@@ -38,8 +40,13 @@ export async function deployCommand() {
 				config.servers[0]?.ip as string,
 				config.appName,
 			);
+			console.log("ok");
 			await ensureDockerNetworkIsConfigured(ssh);
-			const { containerName } = await startNewContainer(ssh, imageName);
+			const { containerName } = await startNewContainer(
+				ssh,
+				imageName,
+				config.env,
+			);
 			await ensureCaddyIsConfigured(ssh, containerName, config.proxy);
 			await doHealthchecks(ssh);
 			await stopOldContainers(ssh);
@@ -48,11 +55,22 @@ export async function deployCommand() {
 			logger.error(`Could not deploy to ${server.ip}. Aborting. ${error}`);
 			allOk = false;
 		} finally {
+			const currentServerEndTime = Date.now();
+			const durationMs = currentServerEndTime - currentServerStartTime;
+			const durationSeconds = durationMs / 1000;
+			logger.info(
+				`Finished deploy on ${server.ip} in ${durationSeconds.toFixed(2)} seconds.`,
+			);
 			logger.info(`Disconnecting from ${server.ip}.`);
 			ssh.dispose();
 		}
-		if (allOk) {
-			logger.info("Successfully deployed to all servers.");
-		}
+	}
+	const allServersEndTime = Date.now();
+	const durationMs = allServersEndTime - allServersStartTime;
+	const durationSeconds = durationMs / 1000;
+	if (allOk) {
+		logger.info(
+			`Successfully deployed to all servers in ${durationSeconds.toFixed(2)} seconds.`,
+		);
 	}
 }

@@ -8,7 +8,7 @@ export async function ensureDockerIsInstalled(ssh: NodeSSH) {
 		ssh,
 		"command -v docker >/dev/null 2>&1 || exit 1",
 	);
-	if (dockerCheckResult) {
+	if (dockerCheckResult.code === 0) {
 		logger.info("Docker is already installed.");
 		return;
 	}
