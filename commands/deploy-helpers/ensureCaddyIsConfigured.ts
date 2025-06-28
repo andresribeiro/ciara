@@ -18,8 +18,16 @@ export async function ensureCaddyIsConfigured(
 	const caddyfileContent = proxySettings.caddyfile
 		? await Bun.file(proxySettings.caddyfile).text()
 		: `
-	  :80, :443
-    reverse_proxy ${appContainerName}:${proxySettings.port}
+	  ${proxySettings.domains && proxySettings.domains.length > 0 ? proxySettings.domains.join(", ") : ":80, :443"} {
+      reverse_proxy ${appContainerName}:${proxySettings.port}
+    }
+    ${
+			proxySettings.domains &&
+			proxySettings.domains.length > 0 &&
+			`:80, :443 {
+        redir https://${proxySettings.domains[0]} permanent
+      }`
+		}
 	`;
 	const copyResult = await executeCommand(
 		ssh,
