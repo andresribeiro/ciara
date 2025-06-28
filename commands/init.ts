@@ -2,6 +2,7 @@ import os from "node:os";
 import path from "node:path";
 import inquirer from "inquirer";
 import { logger } from "../utils/logger";
+import type { CiaraConfig } from "./validate";
 
 export async function initCommand() {
 	const configAlreadyExists = await Bun.file("ciara.config.json").exists();
@@ -78,7 +79,7 @@ export async function initCommand() {
 			const sshDir = path.join(homeDir, ".ssh");
 			return path.join(sshDir, "id_rsa");
 		}
-		const config = {
+		const config: typeof CiaraConfig.infer = {
 			appName: answers.appName,
 			servers: [
 				{
@@ -94,7 +95,13 @@ export async function initCommand() {
 				domains: answers.domain ? [answers.domain] : undefined,
 			},
 			firewall: {
-				inbound: [{ port: answers.appPort, allow: "*" }],
+				inbound: [
+					{
+						port: 22,
+						allow: "*",
+						protocols: ["udp"],
+					},
+				],
 			},
 			updates: {
 				reboots: {
