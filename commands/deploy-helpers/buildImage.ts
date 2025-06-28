@@ -151,7 +151,7 @@ export async function buildImage(
 			const remoteImagePath = `${path.join(os.tmpdir(), imageName)}${imageName}.tar`;
 			const localImagePath = `${path.join(os.tmpdir(), imageName)}${imageName}.tar`;
 			logger.info(
-				"Exporting image from remote server to local computer for to multi-server deployment.",
+				"Exporting image from remote server to local computer for multi-server deployment.",
 			);
 			const saveImageResult = await executeCommand(
 				ssh,
