@@ -49,17 +49,17 @@ export async function deployCommand() {
 			);
 			await ensureCaddyIsConfigured(ssh, containerName, config.proxy);
 			await doHealthchecks(ssh);
-			await stopOldContainers(ssh);
-		} catch (error) {
-			logger.error(`Could not deploy to ${server.ip}. Aborting. ${error}`);
-			allOk = false;
-		} finally {
+			await stopOldContainers(ssh, config.appName);
 			const currentServerEndTime = Date.now();
 			const durationMs = currentServerEndTime - currentServerStartTime;
 			const durationSeconds = durationMs / 1000;
 			logger.info(
-				`Deploy on ${server.ip} in ${durationSeconds.toFixed(2)} seconds.`,
+				`Deployed on ${server.ip} in ${durationSeconds.toFixed(2)} seconds.`,
 			);
+		} catch (error) {
+			logger.error(`Could not deploy to ${server.ip}. Aborting. ${error}`);
+			allOk = false;
+		} finally {
 			logger.info(`Disconnecting from ${server.ip}.`);
 			ssh.dispose();
 		}

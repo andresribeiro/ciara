@@ -52,7 +52,7 @@ export async function ensureCaddyIsConfigured(
 	} else {
 		logger.info("Caddy is not running.");
 		logger.info("Removing old containers.");
-		await executeCommand(ssh, `docker rm -f ${caddyContainerName}`); // we don't care if it fails (e.g., if it doesn't exist)
+		await executeCommand(ssh, `docker rm -f ${caddyContainerName} 2>/dev/null`); // 2>/dev/null because we don't care if the container doesn't exists
 		logger.info("Old containers removed.");
 		logger.info("Pulling latest Caddy image.");
 		const pullResult = await executeCommand(ssh, "docker pull caddy:latest");
