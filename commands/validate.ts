@@ -13,7 +13,7 @@ const SSHType = type({
 	privateKeyPath: "string",
 });
 
-const HealthcheckType = type({
+export const HealthcheckType = type({
 	"+": "reject",
 	path: "string",
 	interval: "number.integer > 0",
@@ -62,7 +62,7 @@ export const CiaraConfig = type({
 	servers: ServersType.array().atLeastLength(1),
 	ssh: SSHType,
 	"env?": "string",
-	"healthchecks?": HealthcheckType.array(),
+	"healthcheck?": HealthcheckType,
 	proxy: ProxyType,
 	firewall: FirewallType,
 	updates: UpdatesType,

@@ -2,7 +2,7 @@ import { NodeSSH } from "node-ssh";
 import { logger } from "../utils/logger";
 import { buildImage } from "./deploy-helpers/buildImage";
 import { connectToSSH } from "./deploy-helpers/connectToSSH";
-import { doHealthchecks } from "./deploy-helpers/doHealthchecks";
+import { doHealthcheck } from "./deploy-helpers/doHealthcheck";
 import { ensureCaddyIsConfigured } from "./deploy-helpers/ensureCaddyIsConfigured";
 import { ensureDockerIsInstalled } from "./deploy-helpers/ensureDockerIsInstalled";
 import { ensureDockerNetworkIsConfigured } from "./deploy-helpers/ensureDockerNetworkIsConfigured";
@@ -49,7 +49,12 @@ export async function deployCommand() {
 				config.env,
 			);
 			await ensureCaddyIsConfigured(ssh, containerName, config.proxy);
-			await doHealthchecks(ssh);
+			await doHealthcheck(
+				ssh,
+				containerName,
+				config.proxy.port,
+				config.healthcheck,
+			);
 			await stopOldContainers(ssh, config.appName);
 			await pruneDocker(ssh);
 			const currentServerEndTime = Date.now();

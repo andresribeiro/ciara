@@ -4,7 +4,7 @@ import { logger } from "../../utils/logger";
 import type { ProxyType } from "../validate";
 import { dockerNetworkName } from "./ensureDockerNetworkIsConfigured";
 
-const caddyContainerName = "caddy";
+export const caddyContainerName = "caddy";
 const remoteCaddyParentFolder = "/root/conf";
 const remoteCaddyfilePath = `${remoteCaddyParentFolder}/Caddyfile`;
 
