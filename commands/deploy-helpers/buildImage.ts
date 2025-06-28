@@ -13,6 +13,7 @@ export async function buildImage(
 	builderHost: string,
 	appName: string,
 	alreadyBuiltImageName: string | null,
+	isDeployingOnMultipleServers: boolean,
 ) {
 	if (alreadyBuiltImageName) {
 		logger.info("Image is already built. Uploading it to remote server.");
@@ -54,7 +55,6 @@ export async function buildImage(
 			throw new Error(`Invalid builder architecture.`);
 		}
 		logger.info("Checked builder architecture.");
-
 		if (builderHost === "local") {
 			const proc = Bun.spawn(["dpkg", "--print-architecture"]);
 			const localArchitecture = (await new Response(proc.stdout).text()).trim();
@@ -64,7 +64,7 @@ export async function buildImage(
 				);
 			}
 		}
-
+		logger.info("Builder architecture checked.");
 		const removeContextProcess = Bun.spawn({
 			cmd: ["docker", "context", "rm", dockerBuilderName],
 			stdin: "inherit",
@@ -84,7 +84,6 @@ export async function buildImage(
 			}
 		}
 		logger.info("A builder instance is available and ready.");
-
 		logger.info("Building Docker image.");
 		const cmd = [
 			"docker",
@@ -128,7 +127,7 @@ export async function buildImage(
 			});
 			await removeContextProcess.exited;
 			if (removeContextProcess.exitCode !== 0) {
-				throw new Error("Could save image on a local folder.");
+				throw new Error("Could not save image on a local folder.");
 			}
 			logger.info("Image saved on local folder.");
 			logger.info("Uploading image to remote server.");
@@ -148,6 +147,30 @@ export async function buildImage(
 				);
 			}
 			logger.info("Loaded as Docker image.");
+		} else if (isDeployingOnMultipleServers) {
+			const remoteImagePath = `${path.join(os.tmpdir(), imageName)}${imageName}.tar`;
+			const localImagePath = `${path.join(os.tmpdir(), imageName)}${imageName}.tar`;
+			logger.info(
+				"Exporting image from remote server to local computer for to multi-server deployment.",
+			);
+			const saveImageResult = await executeCommand(
+				ssh,
+				`docker save -o ${remoteImagePath} ${imageName}`,
+			);
+			if (saveImageResult.code !== 0) {
+				throw new Error("Could not export image on builder.");
+			}
+			logger.info("Image exported on builder. Copying it into a local folder.");
+			try {
+				await ssh.getFile(localImagePath, remoteImagePath);
+			} catch (error) {
+				throw new Error(
+					`Could not copy image from builder into a local folder: ${error}`,
+				);
+			}
+			logger.info("Removing exported image on builder.");
+			await executeCommand(ssh, `rm ${remoteImagePath}`);
+			logger.info("Exported image removed on builder.");
 		}
 		return { imageName };
 	} catch (error) {

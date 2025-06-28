@@ -43,6 +43,7 @@ export async function deployCommand() {
 				config.builder.host,
 				config.appName,
 				alreadyBuiltImageName,
+				servers.length > 1,
 			);
 			alreadyBuiltImageName = imageName;
 			await ensureDockerNetworkIsConfigured(ssh);
