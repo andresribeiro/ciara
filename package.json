@@ -7,11 +7,11 @@
 		"ciara": "./index.ts"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.0.5",
-		"@types/bun": "latest"
+		"@biomejs/biome": "2.0.6",
+		"@types/bun": "^1.2.17"
 	},
 	"peerDependencies": {
-		"typescript": "^5"
+		"typescript": "^5.8.3"
 	},
 	"dependencies": {
 		"arktype": "^2.1.20",
