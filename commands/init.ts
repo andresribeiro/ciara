@@ -37,25 +37,6 @@ export async function initCommand() {
 			},
 		},
 		{
-			type: "list",
-			name: "defaultPort",
-			message: "Is SSH running on the default port (22)?",
-			choices: ["Yes", "No"],
-		},
-		{
-			type: "input",
-			name: "port",
-			message: "Which port is SSH running on?",
-			when: (answers: { defaultPort: string }) => answers.defaultPort === "no",
-			validate: (value: string) => {
-				const port = parseInt(value, 10);
-				if (port > 0 && port <= 65535) {
-					return true;
-				}
-				return "Please enter a valid port number (1-65535).";
-			},
-		},
-		{
 			type: "number",
 			name: "appPort",
 			message: "Which port is your application running on?",
@@ -102,7 +83,7 @@ export async function initCommand() {
 			servers: [
 				{
 					ip: answers.ip,
-					port: answers.defaultPort === "No" ? answers.port : "22",
+					port: 22,
 				},
 			],
 			ssh: {
@@ -120,6 +101,9 @@ export async function initCommand() {
 					enabled: true,
 					time: "03:00",
 				},
+			},
+			builder: {
+				ip: answers.ip,
 			},
 		};
 		const configPath = path.join(process.cwd(), "ciara.config.json");

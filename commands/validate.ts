@@ -5,7 +5,7 @@ import { logger } from "../utils/logger";
 export const ServersType = type({
 	"+": "reject",
 	ip: "string",
-	port: type("string.integer.parse").to("0 < number.integer <= 65536"),
+	port: "0 < number.integer <= 65536",
 });
 
 const SSHType = type({
@@ -50,6 +50,11 @@ const UpdatesType = type({
 	reboots: RebootsType,
 });
 
+const BuilderType = type({
+	"+": "reject",
+	ip: "string",
+});
+
 export const CiaraConfig = type({
 	"+": "reject",
 	appName: "string",
@@ -60,6 +65,7 @@ export const CiaraConfig = type({
 	proxy: ProxyType,
 	firewall: FirewallType,
 	updates: UpdatesType,
+	builder: BuilderType,
 });
 
 export async function validateCommand() {
