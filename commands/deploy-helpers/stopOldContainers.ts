@@ -32,18 +32,7 @@ export async function stopOldContainers(ssh: NodeSSH, appName: string) {
 			throw new Error("Could not stop Docker containers.");
 		}
 		logger.info("Old containers stopped.");
-		logger.info(
-			`Removing ${idsToStop.length} old ${idsToStop.length === 1 ? "container" : "containers"}.`,
-		);
-		const removeResult = await executeCommand(
-			ssh,
-			`docker rm ${idsToStop.join(" ")}`,
-		);
-		if (removeResult.code !== 0) {
-			logger.error(`Could not remove Docker containers: ${listResult.stderr}`);
-			throw new Error("Could not remove Docker containers.");
-		}
-		logger.info("Old containers removed.");
+		// we dont't need to stop these containers as we run prune Docker on every deploy
 	} else {
 		logger.info("No old containers found.");
 	}

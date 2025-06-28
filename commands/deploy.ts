@@ -10,6 +10,7 @@ import { ensureFail2banIsConfigured } from "./deploy-helpers/ensureFail2banIsCon
 import { ensureFirewallIsConfigured } from "./deploy-helpers/ensureFirewallIsConfigured";
 import { ensureSSHPasswordLoginsAreDisabled } from "./deploy-helpers/ensureSSHPasswordLoginsAreDisabled";
 import { ensureUnattendedUpgradesAreConfigured } from "./deploy-helpers/ensureUnattendedUpgradesAreConfigured";
+import { pruneDocker } from "./deploy-helpers/pruneDocker";
 import { readCiaraConfig } from "./deploy-helpers/readCiaraConfig";
 import { startNewContainer } from "./deploy-helpers/startNewContainer";
 import { stopOldContainers } from "./deploy-helpers/stopOldContainers";
@@ -50,6 +51,7 @@ export async function deployCommand() {
 			await ensureCaddyIsConfigured(ssh, containerName, config.proxy);
 			await doHealthchecks(ssh);
 			await stopOldContainers(ssh, config.appName);
+			await pruneDocker(ssh);
 			const currentServerEndTime = Date.now();
 			const durationMs = currentServerEndTime - currentServerStartTime;
 			const durationSeconds = durationMs / 1000;
