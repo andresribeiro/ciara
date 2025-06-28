@@ -78,7 +78,14 @@ export async function validateCommand() {
 		return false;
 	}
 	const text = await file.text();
-	const data = CiaraConfig(JSON.parse(text));
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(text);
+	} catch (error) {
+		logger.error(`Failed to parse ciara.config.json: ${error}`);
+		return false;
+	}
+	const data = CiaraConfig(parsed);
 	if (data instanceof type.errors) {
 		for (const validationError of data) {
 			logger.error(validationError.message);
