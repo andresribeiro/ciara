@@ -36,5 +36,8 @@ export async function ensureDockerIsInstalled(ssh: NodeSSH) {
 		logger.error("STDERR:", installStderr);
 		throw new Error("Docker installation failed.");
 	}
+	logger.info("Removing Docker installation script.");
+	await executeCommand(ssh, `rm ./get-docker.sh`);
+	logger.info("Docker installation script removed.");
 	logger.info("Docker installed successfully.");
 }
