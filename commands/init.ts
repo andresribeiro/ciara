@@ -94,6 +94,12 @@ export async function initCommand() {
 				port: answers.appPort,
 				domains: answers.domain ? [answers.domain] : undefined,
 			},
+			healthcheck: {
+				path: "/",
+				interval: 5,
+				timeout: 3,
+				retries: 5,
+			},
 			firewall: {
 				inbound: [
 					{
