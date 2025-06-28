@@ -1,29 +1,36 @@
 #! /usr/bin/env bun
 
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
+import { Command } from "commander";
 import { deployCommand } from "./commands/deploy";
 import { initCommand } from "./commands/init";
 import { validateCommand } from "./commands/validate";
 
-yargs(hideBin(process.argv))
-	.command(
-		"init",
-		"Initialize a new ciara.config.json file",
-		() => {},
-		initCommand,
-	)
-	.command(
-		"validate",
-		"Validate ciara.config.json file",
-		() => {},
-		validateCommand,
-	)
-	.command(
-		"deploy",
-		"Deploy a new version of your app",
-		() => {},
-		deployCommand,
-	)
-	.demandCommand(1, "You need at least one command before moving on")
-	.help().argv;
+const program = new Command();
+
+program
+	.name("ciara")
+	.description("Securely deploy any application on any server.")
+	.version("1.0.0");
+
+program
+	.command("deploy")
+	.description("Deploys your application to the configured server(s).")
+	.action(async () => {
+		await deployCommand();
+	});
+
+program
+	.command("init")
+	.description("Initializes a new Ciara configuration file.")
+	.action(async () => {
+		await initCommand();
+	});
+
+program
+	.command("validate")
+	.description("Validates your Ciara configuration file.")
+	.action(async () => {
+		await validateCommand();
+	});
+
+program.parse(process.argv);
