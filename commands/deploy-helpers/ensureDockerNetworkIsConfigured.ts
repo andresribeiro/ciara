@@ -9,7 +9,7 @@ export async function ensureDockerNetworkIsConfigured(ssh: NodeSSH) {
 	logger.info(`Checking if Docker network '${dockerNetworkName}' exists.`);
 	const networkCheckResult = await executeCommand(
 		ssh,
-		`docker network inspect ${dockerNetworkName}`,
+		`docker network inspect ${dockerNetworkName} 2>&1`,
 	);
 	if (networkCheckResult.code !== 0) {
 		logger.info(`Network ${dockerNetworkName} does not exists. Creating it.`);

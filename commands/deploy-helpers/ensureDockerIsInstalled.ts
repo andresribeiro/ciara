@@ -29,7 +29,7 @@ export async function ensureDockerIsInstalled(ssh: NodeSSH) {
 		stdout: installStdout,
 		stderr: installStderr,
 		code: installCode,
-	} = await executeCommand(ssh, "sudo sh ./get-docker.sh");
+	} = await executeCommand(ssh, "sudo sh ./get-docker.sh 2>&1");
 	if (installCode !== 0) {
 		logger.error("Failed to install Docker.");
 		logger.error("STDOUT:", installStdout);
