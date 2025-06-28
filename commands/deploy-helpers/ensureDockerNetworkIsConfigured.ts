@@ -5,7 +5,7 @@ import { logger } from "../../utils/logger";
 export const dockerNetworkName = "ciara-network";
 
 export async function ensureDockerNetworkIsConfigured(ssh: NodeSSH) {
-	logger.info("Ensuring if Docker network is configured.");
+	logger.info("Ensuring that Docker network is configured.");
 	logger.info(`Checking if Docker network '${dockerNetworkName}' exists.`);
 	const networkCheckResult = await executeCommand(
 		ssh,

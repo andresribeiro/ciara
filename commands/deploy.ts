@@ -37,7 +37,8 @@ export async function deployCommand() {
 			);
 			await ensureFirewallIsConfigured(ssh);
 			const { imageName } = await buildImage(
-				config.servers[0]?.ip as string,
+				ssh,
+				config.builder.host,
 				config.appName,
 			);
 			await ensureDockerNetworkIsConfigured(ssh);

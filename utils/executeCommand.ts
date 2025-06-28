@@ -1,8 +1,8 @@
 import type { NodeSSH } from "node-ssh";
 import { logger } from "./logger";
 
-const YELLOW = "\x1B[33m";
-const RESET = "\x1B[0m";
+export const YELLOW = "\x1B[33m";
+export const RESET = "\x1B[0m";
 
 export async function executeCommand(
 	ssh: NodeSSH,

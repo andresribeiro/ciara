@@ -103,7 +103,7 @@ export async function initCommand() {
 				},
 			},
 			builder: {
-				ip: answers.ip,
+				host: answers.ip,
 			},
 		};
 		const configPath = path.join(process.cwd(), "ciara.config.json");

@@ -52,7 +52,7 @@ const UpdatesType = type({
 
 const BuilderType = type({
 	"+": "reject",
-	ip: "string",
+	host: "string",
 });
 
 export const CiaraConfig = type({
