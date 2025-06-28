@@ -36,7 +36,7 @@ export async function deployCommand() {
 				config.updates.reboots.enabled,
 				config.updates.reboots.time,
 			);
-			await ensureFirewallIsConfigured(ssh);
+			await ensureFirewallIsConfigured(ssh, config.firewall);
 			const { imageName } = await buildImage(
 				ssh,
 				config.builder.host,

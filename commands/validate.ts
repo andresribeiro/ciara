@@ -25,6 +25,7 @@ const FirewallInboundType = type({
 	"+": "reject",
 	port: type("number.integer").to("0 < number.integer <= 65536"),
 	allow: type("'*'").or(type("string").array()),
+	protocols: type("'tcp'").or(type("'udp'")).array(),
 });
 
 export const ProxyType = type({
@@ -34,7 +35,7 @@ export const ProxyType = type({
 	"caddyfile?": type("string"),
 });
 
-const FirewallType = type({
+export const FirewallType = type({
 	"+": "reject",
 	inbound: FirewallInboundType.array(),
 });
