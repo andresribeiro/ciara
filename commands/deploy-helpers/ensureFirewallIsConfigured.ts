@@ -152,43 +152,44 @@ export async function ensureFirewallIsConfigured(
 
 	if (rulesToDelete.length === 0 && rulesToAdd.length === 0) {
 		logger.info("Firewall configuration is already up to date.");
-	} else {
-		// deletions are performed first, in descending order to avoid issues with shifting rule numbers.
-		if (rulesToDelete.length > 0) {
-			logger.info(
-				`Removing ${rulesToDelete.length} obsolete firewall ${rulesToDelete.length === 1 ? "rule" : "rules"}.`,
-			);
-			rulesToDelete.sort((a, b) => b - a);
-			for (const ruleNumber of rulesToDelete) {
-				const rule = currentRules.find((r) => r.ruleNumber === ruleNumber);
-				rule &&
-					logger.info(
-						`Deleting rule: number=${ruleNumber}, port=${rule.port}/${rule.protocol}, from=${rule.from}.`,
-					);
-				await executeCommand(ssh, `yes | sudo ufw delete ${ruleNumber}`);
-			}
-			logger.info(
-				`Removed ${rulesToDelete.length} obsolete firewall ${rulesToDelete.length === 1 ? "rule" : "rules"}.`,
-			);
-		}
-		if (rulesToAdd.length > 0) {
-			logger.info(
-				`Adding ${rulesToAdd.length} new firewall ${rulesToAdd.length === 1 ? "rule" : "rules"}.`,
-			);
-			for (const rule of rulesToAdd) {
+		return;
+	}
+
+	// deletions are performed first, in descending order to avoid issues with shifting rule numbers.
+	if (rulesToDelete.length > 0) {
+		logger.info(
+			`Removing ${rulesToDelete.length} obsolete firewall ${rulesToDelete.length === 1 ? "rule" : "rules"}.`,
+		);
+		rulesToDelete.sort((a, b) => b - a);
+		for (const ruleNumber of rulesToDelete) {
+			const rule = currentRules.find((r) => r.ruleNumber === ruleNumber);
+			rule &&
 				logger.info(
-					`Adding rule: port=${rule.port}/${rule.protocol}, from=${rule.from}.`,
+					`Deleting rule: number=${ruleNumber}, port=${rule.port}/${rule.protocol}, from=${rule.from}.`,
 				);
-				const command =
-					rule.from === "Anywhere"
-						? `sudo ufw allow ${rule.port}/${rule.protocol}`
-						: `sudo ufw allow from ${rule.from} to any port ${rule.port} proto ${rule.protocol}`;
-				await executeCommand(ssh, command);
-			}
-			logger.info(
-				`Added ${rulesToAdd.length} new firewall ${rulesToAdd.length === 1 ? "rule" : "rules"}.`,
-			);
+			await executeCommand(ssh, `yes | sudo ufw delete ${ruleNumber}`);
 		}
+		logger.info(
+			`Removed ${rulesToDelete.length} obsolete firewall ${rulesToDelete.length === 1 ? "rule" : "rules"}.`,
+		);
+	}
+	if (rulesToAdd.length > 0) {
+		logger.info(
+			`Adding ${rulesToAdd.length} new firewall ${rulesToAdd.length === 1 ? "rule" : "rules"}.`,
+		);
+		for (const rule of rulesToAdd) {
+			logger.info(
+				`Adding rule: port=${rule.port}/${rule.protocol}, from=${rule.from}.`,
+			);
+			const command =
+				rule.from === "Anywhere"
+					? `sudo ufw allow ${rule.port}/${rule.protocol}`
+					: `sudo ufw allow from ${rule.from} to any port ${rule.port} proto ${rule.protocol}`;
+			await executeCommand(ssh, command);
+		}
+		logger.info(
+			`Added ${rulesToAdd.length} new firewall ${rulesToAdd.length === 1 ? "rule" : "rules"}.`,
+		);
 	}
 
 	await executeCommand(ssh, "ufw default deny incoming");
