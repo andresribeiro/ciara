@@ -12,7 +12,31 @@ export async function buildImage(
 	ssh: NodeSSH,
 	builderHost: string,
 	appName: string,
+	alreadyBuiltImageName: string | null,
 ) {
+	if (alreadyBuiltImageName) {
+		logger.info("Image is already built. Uploading it to remote server.");
+		const remoteFilePath = `/tmp/${alreadyBuiltImageName}`;
+		const localImagePath = `${path.join(os.tmpdir(), alreadyBuiltImageName)}${alreadyBuiltImageName}.tar`;
+		try {
+			await ssh.putFile(localImagePath, remoteFilePath);
+		} catch (error) {
+			throw new Error(`Could not upload image to remote server: ${error}`);
+		}
+		logger.info("Image uploaded to remote server. Loading into Docker.");
+		const loadDockerImageResult = await executeCommand(
+			ssh,
+			`docker load -i ${remoteFilePath}`,
+		);
+		if (loadDockerImageResult.code !== 0) {
+			throw new Error(
+				`Could not load image into Docker: ${loadDockerImageResult.stderr}`,
+			);
+		}
+		logger.info("Loaded as Docker image.");
+		return { imageName: alreadyBuiltImageName };
+	}
+
 	logger.info("Starting application build.");
 	const buildId = Date.now();
 	const imageName = `${appName.toLowerCase()}:${buildId}`;

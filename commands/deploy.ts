@@ -23,6 +23,7 @@ export async function deployCommand() {
 	const servers = config.servers;
 	let allOk = true;
 	const allServersStartTime = Date.now();
+	let alreadyBuiltImageName: string | null = null;
 	for (const server of servers) {
 		const currentServerStartTime = Date.now();
 		const ssh = new NodeSSH();
@@ -41,7 +42,9 @@ export async function deployCommand() {
 				ssh,
 				config.builder.host,
 				config.appName,
+				alreadyBuiltImageName,
 			);
+			alreadyBuiltImageName = imageName;
 			await ensureDockerNetworkIsConfigured(ssh);
 			const { containerName } = await startNewContainer(
 				ssh,
@@ -75,8 +78,14 @@ export async function deployCommand() {
 	const durationMs = allServersEndTime - allServersStartTime;
 	const durationSeconds = durationMs / 1000;
 	if (allOk) {
-		logger.info(
-			`Successfully deployed to all servers in ${durationSeconds.toFixed(2)} seconds.`,
-		);
+		if (servers.length === 1) {
+			logger.info(
+				`Successfully deployed to your server in ${durationSeconds.toFixed(2)} seconds.`,
+			);
+		} else {
+			logger.info(
+				`Successfully deployed on ${servers.length} servers in ${durationSeconds.toFixed(2)} seconds.`,
+			);
+		}
 	}
 }
