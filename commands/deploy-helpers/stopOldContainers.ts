@@ -17,7 +17,7 @@ export async function stopOldContainers(ssh: NodeSSH, appName: string) {
 		.map((id) => id.trim())
 		.filter(Boolean) // this removes empty values
 		.sort(); // we order by id name, as names are based on timestamp
-	idsToStop.pop(); // we dont want to stop the last container, which is running the current app
+	idsToStop.pop(); // we don't want to stop the last container, which is running the current app
 
 	if (idsToStop.length > 0) {
 		logger.info(
@@ -32,7 +32,7 @@ export async function stopOldContainers(ssh: NodeSSH, appName: string) {
 			throw new Error("Could not stop Docker containers.");
 		}
 		logger.info("Old containers stopped.");
-		// we don't need to stop these containers as we run prune Docker on every deploy
+		// we don't need to remove these containers as we run prune Docker on every deploy
 	} else {
 		logger.info("No old containers found.");
 	}

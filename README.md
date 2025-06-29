@@ -2,7 +2,7 @@
 
 Securely deploy any application on any server.
 
-- 🛠️ No DevOps Knowledge Required - Focus on your code. Ciara focus on your deployment.
+- 🛠️ No DevOps Knowledge Required - Focus on your code. Ciara focuses on your deployment.
 - 🗄️ VM OR Bare Metal - Deploy on any server, cloud or on-premises.
 - 🗝️ Integrated Security - Define your firewall configs in your Ciara configuration. We also set Fail2ban for you.
 - 🔧 Automatic OS updates - Leverage kpatch for automatic OS updates.
@@ -23,7 +23,6 @@ Output:
 ```bash
 ✔ What is your app name? my-website
 ✔ What is the IP address of the server? 127.0.0.1
-✔ Is SSH running on the default port (22)? Yes
 ✔ Which port is your application running on? 3000
 ✔ Would you like to setup a domain? Yes
 ✔ Enter your domain: example.com

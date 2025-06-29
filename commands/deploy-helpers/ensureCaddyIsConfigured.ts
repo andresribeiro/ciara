@@ -49,8 +49,8 @@ export async function ensureCaddyIsConfigured(
 		const reloadResult = await executeCommand(
 			ssh,
 			`docker exec -w /etc/caddy ${caddyContainerName} caddy fmt /etc/caddy/Caddyfile --overwrite && docker exec -w /etc/caddy ${caddyContainerName} caddy reload 2>&1`,
-			// we need to format Caddyfile because Caddy shows an log if it's not formatted
-			// and we need 2>&1 because it's as an error (stderr),
+			// we run 'caddy fmt' to prevent warnings in Caddy's logs
+			// the format command outputs to stderr, so we redirect it
 		);
 		if (reloadResult.code !== 0) {
 			logger.error(`Error reloading Caddy: ${reloadResult.stderr}`);
