@@ -2,39 +2,77 @@
 
 Securely deploy any application on any server.
 
-- 🛠️ No DevOps Knowledge Required - Focus on your code. Ciara focuses on your deployment.
-- 🗄️ VM OR Bare Metal - Deploy on any server, cloud or on-premises.
-- 🗝️ Integrated Security - Define your firewall configs in your Ciara configuration. We also set Fail2ban for you.
-- 🔧 Automatic OS updates - Leverage kpatch for automatic OS updates.
-- ⚙️ Zero-Config OS Ready - No need for prior configuration required.
-- ⏱️ Zero-Downtime Deployments - Deploy updates without service interruption.
-- 🔒 Automatic HTTPS support - Don't worry about certificates renewal.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Docs](https://img.shields.io/badge/Documentation-Ciara-blue)](https://github.com/andresribeiro/ciara-docs)
+
+- 🗄️ VM OR Bare Metal
+- 🗝️ Integrated Firewall
+- 🔧 Automatic security system updates
+- ⚙️ Zero-Config OS Ready
+- ⏱️ Zero-Downtime Deployments
+- 🔒 Automatic HTTPS support
+- 🛠️ Simple config file
 
 ## Quickstart
 
-On your project root, run the following command on your terminal:
-
 ```bash
+npm install -g ciara-deploy
+cd your-project
 ciara init
-```
-
-Output:
-
-```bash
-✔ What is your app name? my-website
-✔ What is the IP address of the server? 127.0.0.1
-✔ Which port is your application running on? 3000
-✔ Would you like to set up a domain? Yes
-✔ Enter your domain: example.com
-ciara.config.json created.
-```
-
-## Deployment
-
-To make your first deploy, all you need to do is run the following command in your terminal:
-
-```bash
 ciara deploy
+```
+
+## Requirements
+
+- Servers: Debian OS (fresh install recommended)
+- Local machine: Bun runtime
+
+## Configuration
+
+All settings are managed in ciara.config.json:
+
+```json
+{
+  "appName": "my-website",
+  "servers": [
+    {
+      "ip": "127.0.0.1",
+      "port": 22
+    }
+  ],
+  "ssh": {
+    "privateKeyPath": "/root/.ssh/id_rsa"
+  },
+  "proxy": {
+    "port": 3000
+  },
+  "healthcheck": {
+    "path": "/",
+    "interval": 5,
+    "timeout": 3,
+    "retries": 5
+  },
+  "firewall": {
+    "inbound": [
+      {
+        "port": 22,
+        "allow": "*",
+        "protocols": [
+          "udp"
+        ]
+      }
+    ]
+  },
+  "updates": {
+    "reboots": {
+      "enabled": true,
+      "time": "03:00"
+    }
+  },
+  "builder": {
+    "host": "127.0.0.1"
+  }
+}
 ```
 
 That's it. Ciara takes care of all the rest. For further details and a complete guide, please refer to our official documentation: [Ciara Quickstart Guide](https://ciara-deploy.dev/quickstart.html).
