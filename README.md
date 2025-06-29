@@ -77,3 +77,7 @@ All settings are managed in ciara.config.json:
 ```
 
 That's it. Ciara takes care of all the rest. For further details and a complete guide, please refer to our official documentation: [Ciara Quickstart Guide](https://ciara-deploy.dev/quickstart.html).
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
