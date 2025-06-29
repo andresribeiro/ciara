@@ -32,7 +32,7 @@ export async function stopOldContainers(ssh: NodeSSH, appName: string) {
 			throw new Error("Could not stop Docker containers.");
 		}
 		logger.info("Old containers stopped.");
-		// we dont't need to stop these containers as we run prune Docker on every deploy
+		// we don't need to stop these containers as we run prune Docker on every deploy
 	} else {
 		logger.info("No old containers found.");
 	}
