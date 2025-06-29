@@ -107,7 +107,7 @@ export async function initCommand() {
 					{
 						port: 22,
 						allow: "*",
-						protocols: ["udp"],
+						protocols: ["tcp"],
 					},
 				],
 			},

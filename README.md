@@ -58,9 +58,7 @@ All settings are managed in ciara.config.json:
       {
         "port": 22,
         "allow": "*",
-        "protocols": [
-          "udp"
-        ]
+        "protocols": ["tcp"]
       }
     ]
   },
