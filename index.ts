@@ -4,13 +4,14 @@ import { Command } from "commander";
 import { deployCommand } from "./commands/deploy";
 import { initCommand } from "./commands/init";
 import { validateCommand } from "./commands/validate";
+import packageInfo from "./package.json";
 
 const program = new Command();
 
 program
 	.name("ciara")
 	.description("Securely deploy any application on any server.")
-	.version("1.0.0");
+	.version(packageInfo.version);
 
 program
 	.command("deploy")
