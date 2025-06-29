@@ -57,7 +57,7 @@ export async function initCommand() {
 		{
 			type: "confirm",
 			name: "setupDomain",
-			message: "Would you like to setup a domain?",
+			message: "Would you like to set up a domain?",
 			default: false,
 		},
 		{
