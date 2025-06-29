@@ -4,6 +4,7 @@ Securely deploy any application on any server.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Docs](https://img.shields.io/badge/Documentation-Ciara-blue)](https://github.com/andresribeiro/ciara-docs)
+![NPM Version](https://img.shields.io/npm/v/ciara-deploy)
 
 - 🗄️ VM OR Bare Metal
 - 🗝️ Integrated Firewall
