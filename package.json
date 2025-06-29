@@ -1,11 +1,36 @@
 {
-	"name": "ciara",
+	"name": "ciara-deploy",
+	"description": "Securely deploy any application on any server",
+	"version": "1.0.0",
 	"module": "index.ts",
 	"type": "module",
-	"private": true,
+	"private": false,
 	"bin": {
 		"ciara": "./index.ts"
 	},
+	"engines": {
+		"bun": ">=1.0.0"
+	},
+	"author": {
+		"name": "André Ribeiro",
+		"url": "https://github.com/andresribeiro"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/andresribeiro/ciara"
+	},
+	"bugs": {
+		"url": "https://github.com/andresribeiro/ciara/issues"
+	},
+	"homepage": "https://ciara-deploy.dev",
+	"license": "MIT",
+	"keywords": [
+		"cli",
+		"deploy",
+		"docker",
+		"ssh",
+		"server"
+	],
 	"devDependencies": {
 		"@biomejs/biome": "2.0.6",
 		"@types/bun": "^1.2.17"

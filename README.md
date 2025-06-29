@@ -1,6 +1,6 @@
 # Ciara
 
-Securely deploy any application on any server in `4` minutes.
+Securely deploy any application on any server.
 
 - 🛠️ No DevOps Knowledge Required - Focus on your code. Ciara focus on your deployment.
 - 🗄️ VM OR Bare Metal - Deploy on any server, cloud or on-premises.
@@ -28,7 +28,7 @@ Output:
 ✔ Which port is your application running on? 3000
 ✔ Would you like to setup a domain? Yes
 ✔ Enter your domain: example.com
-Successfully created ciara.config.json
+ciara.config.json created.
 ```
 
 ## Deployment

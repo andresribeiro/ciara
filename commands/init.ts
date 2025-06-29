@@ -1,11 +1,13 @@
 import os from "node:os";
 import path from "node:path";
 import inquirer from "inquirer";
+import { getConfigPath } from "../utils/getConfigPath";
 import { logger } from "../utils/logger";
 import type { CiaraConfig } from "./validate";
 
 export async function initCommand() {
-	const configAlreadyExists = await Bun.file("ciara.config.json").exists();
+	const configPath = getConfigPath();
+	const configAlreadyExists = await Bun.file(configPath).exists();
 	if (configAlreadyExists) {
 		logger.info("ciara.config.json already exists. Skipping initialization.");
 		return;
@@ -119,9 +121,8 @@ export async function initCommand() {
 				host: answers.ip,
 			},
 		};
-		const configPath = path.join(process.cwd(), "ciara.config.json");
 		await Bun.write(configPath, JSON.stringify(config, null, 2));
-		logger.info(`Successfully created ${configPath}`);
+		logger.info("ciara.config.json created.");
 	} catch (error) {
 		logger.error("An error occurred during initialization:", error);
 	}

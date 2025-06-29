@@ -4,7 +4,7 @@ import { logger } from "../../utils/logger";
 import { CiaraConfig } from "../validate";
 
 export async function readCiaraConfig() {
-	const configPath = path.join(process.cwd(), "ciara.config.json");
+	const configPath = path.join("/workdir", "ciara.config.json");
 	const file = Bun.file(configPath);
 	const exists = await file.exists();
 	if (!exists) {

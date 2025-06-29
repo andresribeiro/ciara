@@ -1,5 +1,5 @@
-import path from "node:path";
 import { type } from "arktype";
+import { getConfigPath } from "../utils/getConfigPath";
 import { logger } from "../utils/logger";
 
 export const ServersType = type({
@@ -70,7 +70,7 @@ export const CiaraConfig = type({
 });
 
 export async function validateCommand() {
-	const configPath = path.join(process.cwd(), "ciara.config.json");
+	const configPath = getConfigPath();
 	const file = Bun.file(configPath);
 	const exists = await file.exists();
 	if (!exists) {
