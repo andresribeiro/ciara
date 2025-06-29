@@ -9,7 +9,6 @@ Securely deploy any application on any server.
 - ⚙️ Zero-Config OS Ready - No need for prior configuration required.
 - ⏱️ Zero-Downtime Deployments - Deploy updates without service interruption.
 - 🔒 Automatic HTTPS support - Don't worry about certificates renewal.
-- ➕ Multiple apps - Deploy multipe apps on the same server.
 
 ## Quickstart
 
