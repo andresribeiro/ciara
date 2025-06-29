@@ -22,8 +22,7 @@ export async function startNewContainer(
 			const env = await parseEnv(envFile);
 			envArgs = Object.entries(env)
 				.map(([key, value]) => {
-					// escape single quotes within the value for cases like MY_SECRET="that's-that-me-espresso"
-					// ' -> '\''
+					// escapes single quotes in values, e.g., MY_SECRET="that's-that-me-espresso" becomes "that\'s-that-me-espresso"
 					const escapedValue = value.replace(/'/g, "'\\''");
 					return `-e ${key}='${escapedValue}'`;
 				})
